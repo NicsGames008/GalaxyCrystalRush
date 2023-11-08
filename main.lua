@@ -53,7 +53,7 @@ function createElements()
     love.physics.setMeter(64) 
     world = love.physics.newWorld(0, 9.81 * 64, true) 
     player = {}
-    player.shape
+    player.sprite= love.graphics.newImage("Images/character.png" )
     player.body = love.physics.newBody(world, 100, 100, "dynamic")
     player.shape = love.physics.newCircleShape(20) -- Radius of 20 pixels
     player.fixture = love.physics.newFixture(player.body, player.shape)
@@ -77,7 +77,7 @@ function drawGround(x,y)
 end
 function drawPlayer(x,y)
     love.graphics.setColor(1, 0, 0)
-    love.graphics.circle("fill", player.body:getX(), player.body:getY(), player.shape:getRadius())
+    love.graphics.draw(player.sprite, player.body:getX(), player.body:getY(), 0, 0.3,0.3)
     
 end
 
