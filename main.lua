@@ -7,9 +7,9 @@ local playerY
 local playerVisible
 local groundVisible
 require "vector2"
---require "graphicsLoader"
+require "graphicsLoader"
 function love.load()
-    background = love.graphics.newImage("background.jpg")
+    background = love.graphics.newImage("Images/background.jpg")
     createElements()
     playerX = 0
     playerY = 0
@@ -65,7 +65,7 @@ function createElements()
     -- Erstelle den Boden (Rechteck)
     ground = {}
     ground.body = love.physics.newBody(world, 400, 300, "static")
-    ground.shape = love.physics.newRectangleShape(800, 10) -- Breite von 800 und HÃ¶he von 10 Pixel
+    ground.shape = love.physics.newRectangleShape(800, 10) -- Breite von 800 und Höhe von 10 Pixel
     ground.fixture = love.physics.newFixture(ground.body, ground.shape)
 
 end
