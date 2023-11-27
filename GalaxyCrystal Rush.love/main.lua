@@ -1,3 +1,10 @@
+require "vector2"
+require "graphicsLoader"
+require"enemy"
+require"player"
+require"level"
+require"spike"
+require"void"
 local world
 local player
 local ground
@@ -15,15 +22,77 @@ local killed = false
 local object = "idk"
 local jumpCount = 0
 local released = true
-require "vector2"
-require "graphicsLoader"
+local cheat = false
+local sti = require"libraries/sti"
+local Camera = require "Camera"
+local cam
+local enemies
+local floors
+local walls
+local spikes = {}
+local voids = {}
+local wallJump = false 
+
+
+
+
+
 function love.load()
     background = love.graphics.newImage("background.png")
     local canJump = true;
+    love.window.setMode(1080, 900)
+    camera = Camera()
+    -- Somewhere in your code
+    camera.scale = 1
+
+
+
+
+
+
+
+
+    map = sti("maps/map.lua", { "box2d" })
+
+
 
     love.physics.setMeter(64) 
     world = love.physics.newWorld(0, 9.81 * 64, true) 
     world:setCallbacks(BeginContact, EndContact, nil, nil)
+
+    table.insert(spikes, CreateSpike(world,440, 275))
+    table.insert(voids, CreateVoid(world,500, 275))
+
+
+
+    map:box2d_init(world)
+
+    map:addCustomLayer("Sprite Layer", 3)
+
+    local spriteLayer = map.layers["Sprite Layer"]
+	spriteLayer.sprites = {
+		
+	}
+
+    function spriteLayer:update(dt)
+		for _, sprite in pairs(self.sprites) do
+			sprite.r = sprite.r + math.rad(90 * dt)
+		end
+	end
+
+    function spriteLayer:draw()
+		for _, sprite in pairs(self.sprites) do
+			local x = math.floor(sprite.x)
+			local y = math.floor(sprite.y)
+			local r = sprite.r
+			love.graphics.draw(sprite.image, x, y, r)
+		end
+	end
+
+
+    cam = {}
+    cam.x = 0
+    cam.y = 0
 
     ground = {}
     ground.body = love.physics.newBody(world, 400, 300, "static")
@@ -62,6 +131,30 @@ function love.update(dt)
 
     world:update(dt) -- Aktualisiere die Physik-Welt
 
+    map:update(dt)
+
+    local camSpeed = 500
+    if love.keyboard.isDown("w") then
+        cam.y = cam.y - camSpeed * dt
+    elseif love.keyboard.isDown("s") then
+        cam.y = cam.y + camSpeed * dt
+    end
+
+    if love.keyboard.isDown("a") then
+        cam.x = cam.x - camSpeed * dt
+    elseif love.keyboard.isDown("d") then
+        cam.x = cam.x + camSpeed * dt
+    end
+
+
+    local playerX, playerY = player.body:getPosition()
+    object = playerX
+    camera:update(dt)
+    --camera:follow(playerX,playerY)
+    camera:follow(cam.x,cam.y)
+
+
+
 
 
     -- Spielersteuerung
@@ -95,6 +188,15 @@ function love.update(dt)
 end
 
 function love.draw()
+    camera:attach()
+
+  
+    love.graphics.setColor(1, 1, 1)
+    map:draw(-cam.x * camera.scale, -cam.y * camera.scale)    love.graphics.setColor(1, 0, 0)
+	map:box2d_draw()
+    
+
+
     if killed then 
         killedScreen()
     else
@@ -103,8 +205,13 @@ function love.draw()
     drawPlayer(playerX,playerY)
     drawGround(400,400)
     drawEnemy(enemyX,enemyY)
+    DrawSpike(spikes)
+    DrawVoid(voids)
+    object = tostring(voids[0])
     love.graphics.print(object,0,0)
     end
+    camera:detach()
+    camera:draw() -- Call this here if you're using camera:fade, camera:flash or debug drawing the deadzone
 end
 
 
@@ -158,7 +265,7 @@ function love.keyreleased(key)
 end
 
 function love.keypressed(key)
-    if key == "space" then
+    if key == "space" and cheat == false and wallJump == false then
         object = "test"
         if jumpCount == 0 and canJump and released then
             jumpCount = jumpCount + 1
@@ -168,15 +275,59 @@ function love.keypressed(key)
             released = false
         end
     end
+
+
+    if key == "space" and cheat == false and wallJump then
+        if canJump and released then
+            local jumpForceY = -100  -- Adjust this value to control the jump height
+            local jumpForceX = 0  -- Initialize X force to 0
+            
+            -- Check player's direction
+            if love.keyboard.isDown("left") then
+                jumpForceX = 50  -- Apply force to the right
+            elseif love.keyboard.isDown("right") then
+                jumpForceX = -50  -- Apply force to the left
+            end
+            
+            player.body:applyLinearImpulse(jumpForceX, jumpForceY)
+            canJump = false
+            released = false
+        end
+    end
+    
+
+
+
+    if key == "c" and cheat == false then
+        object = "cheats on"
+        cheat = true
+    end
+   
+
+    if key == "space" and cheat then
+        local jumpForce = vector2.new(0, -100)
+            player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
+    end
 end
 
 
 
 function BeginContact(fixtureA, fixtureB, contact)
 
+    if fixtureA:getUserData().type == "spike" and fixtureB:getUserData() == "player" then
+        killed = true;
+    end
+
+    if fixtureA:getUserData().type == "void" and fixtureB:getUserData() == "player" then
+        killed = true;
+    end
+
     if fixtureA:getUserData() == "wall" and fixtureB:getUserData() == "player" then 
         canWallJump = true
+        wallJump = true
+        player.onground = false
     end
+
 
     if fixtureA:getUserData() == "enemy" and fixtureB:getUserData() == "player" then 
 
@@ -203,11 +354,15 @@ function BeginContact(fixtureA, fixtureB, contact)
         
     end
 
+
+
+
     if fixtureA:getUserData() == "ground" and fixtureB:getUserData() == "player" then
         print1 = true
         local normal = vector2.new(contact:getNormal())
         if normal.y == -1 then
         player.onground = true
+        wallJump = false
         end 
     end 
 
@@ -218,6 +373,7 @@ end
 
         if fixtureA:getUserData() == "wall" and fixtureB:getUserData() == "player" then 
             canWallJump = false
+            wallJump = false
         
         end
 
@@ -243,3 +399,5 @@ function enemyMove(dt)
 
 
 end
+
+

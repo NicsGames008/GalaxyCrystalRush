@@ -23,6 +23,9 @@ local walls = {}
 local blocks = {}
 local solids = {}
 local spikes = {}
+local text= ""
+local bombs = {}
+
 
 
 
@@ -94,7 +97,10 @@ function love.load()
     table.insert(enemies, createEnemy(0, 0, 50, 50))
 
     -- Tower of blocks to climb
-    table.insert(blocks, createBlocks(0, 0))
+    table.insert(blocks, createBlocks(10, 660))
+    table.insert(blocks, createBlocks(120, 660))
+    table.insert(blocks, createBlocks(50, 200))
+
 
     -- Top platform with spikes
     table.insert(spikes, createSpikes(0, 0))
@@ -120,6 +126,8 @@ end
 function love.update(dt)
 
     world:update(dt) -- Aktualisiere die Physik-Welt
+    updateBombs(dt)
+
 
 
 
@@ -172,6 +180,9 @@ end
 
 
 function love.draw()
+        local mouseX, mouseY = love.mouse.getPosition()
+        love.graphics.print("Mouse X: " .. mouseX, 10, 10)
+        love.graphics.print("Mouse Y: " .. mouseY, 10, 30)
     if killed then 
         killedScreen()
     else
@@ -184,6 +195,9 @@ function love.draw()
     drawBlocks(blocks)
     drawSolids(solids)
     drawSpikes(spikes)
+    drawBombs(bombs)
+    love.graphics.print(text,0,0)
+    
     end
 end
 
@@ -257,10 +271,23 @@ function killedScreen()
 end
 
 
+function drawBombs(bombs)
+    love.graphics.setColor(1, 1, 0)  -- Yellow color for bombs
+    for _, bomb in ipairs(bombs) do
+        love.graphics.circle("fill", bomb.body:getX(), bomb.body:getY(), bomb.shape:getRadius())
+    end
+end
+
  
 
 
 ----FURTHER FUNCTIONS-----
+
+
+
+
+
+
 function love.keyreleased(key)
     if key == "space" then 
         released = true
@@ -341,6 +368,16 @@ function BeginContact(fixtureA, fixtureB, contact)
         local normal = vector2.new(contact:getNormal())
         if normal.y == -1 then
         player.onground = true
+        end 
+    end 
+
+    if fixtureA:getUserData() == "solid" and fixtureB:getUserData() == "player" then
+        print1 = true
+        local normal = vector2.new(contact:getNormal())
+        if normal.y == -1 then
+        player.onground = true
+        jumpCount = 0
+        text = "solid berührt"
         end 
     end 
 
@@ -442,7 +479,7 @@ end
 
 function createBlocks(x, y)
     local block = {}
-    block.body = love.physics.newBody(world, x, y, "static")
+    block.body = love.physics.newBody(world, x, y, "dynamic")
     block.shape = love.physics.newRectangleShape(50, 50)
     block.fixture = love.physics.newFixture(block.body, block.shape)
     block.fixture:setUserData("block")
@@ -476,6 +513,7 @@ function createSpikes(x, y)
     return spike
 end 
 
+
 -- Funktion zum Finden eines Objekts im Array anhand der userData
 function findObject(userData)
     for _, obj in ipairs(objects) do
@@ -485,3 +523,58 @@ function findObject(userData)
     end
     return nil  -- Objekt nicht gefunden
 end
+
+
+
+
+
+function love.mousepressed(x, y, button, istouch, presses)
+    if button == 1 then  -- 1 steht für die linke Maustaste
+        createBomb(x, y)
+
+    end
+end
+
+function createBomb(x, y)
+    local bomb = {}
+    bomb.body = love.physics.newBody(world, x, y, "dynamic")
+    bomb.shape = love.physics.newCircleShape(10)
+    bomb.fixture = love.physics.newFixture(bomb.body, bomb.shape)
+    bomb.fixture:setUserData("bomb")
+    bomb.explodeTime = love.timer.getTime() + 2  -- Explosion in 2 Sekunden
+
+    table.insert(bombs, bomb)
+end
+
+function updateBombs(dt)
+    for i, bomb in ipairs(bombs) do
+        if love.timer.getTime() > bomb.explodeTime then
+            explode(bomb)
+            table.remove(bombs, i)
+        end
+    end
+end
+function explode(bomb)
+    local bombPos = vector2.new(bomb.body:getX(), bomb.body:getY())
+    local explosionRadius = 300
+
+    for _, obj in ipairs(objects) do
+        local objPos = vector2.new(obj.body:getX(), obj.body:getY())
+        local distance = vector2.magnitude(vector2.sub(objPos, bombPos))
+
+        if distance < explosionRadius then
+            local forceDir = vector2.normalize(vector2.sub(objPos, bombPos))
+
+            -- Einstellbare Parameter für exponentielle Abnahme
+            local a = 300000  -- Maximaler Kraftbetrag
+            local b = 2     -- Exponent
+
+            local forceMagnitude = a / (distance ^ b)
+            local force = vector2.mult(forceDir, forceMagnitude)
+
+            obj.body:applyLinearImpulse(force.x, force.y)
+        end
+    end
+end
+
+
