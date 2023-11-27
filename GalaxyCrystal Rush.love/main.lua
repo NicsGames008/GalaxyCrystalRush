@@ -27,7 +27,7 @@ function love.load()
 
     ground = {}
     ground.body = love.physics.newBody(world, 400, 300, "static")
-    ground.shape = love.physics.newRectangleShape(800, 30) -- Breite von 800 und Höhe von 10 Pixel
+    ground.shape = love.physics.newRectangleShape(800, 30) --  Breite von 800 und Höhe von 10 Pixel
     ground.fixture = love.physics.newFixture(ground.body, ground.shape)
     ground.fixture:setUserData("ground") 
 
