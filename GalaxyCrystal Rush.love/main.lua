@@ -115,7 +115,7 @@ function love.load()
     player.shape = love.physics.newCircleShape(20) -- Radius von 20 Pixel
     player.fixture = love.physics.newFixture(player.body, player.shape)
     player.body:setFixedRotation(true) -- Verhindere Drehung
-    player.speed = 200 -- Horizontale Geschwindigkeit
+    player.speed = 100 -- Horizontale Geschwindigkeit
     player.jumpForce = -2000 -- Sprungkraft
     player.fixture:setUserData ("player") 
 
@@ -137,6 +137,8 @@ function love.update(dt)
     local pX, pY = player.body:getPosition()
     camera:follow(pX+300,pY)
     --camera:follow(cam.x,cam.y)
+
+    camera.follow_style = 'PLATFORMER'
 
     map:update(dt)
 
@@ -197,11 +199,11 @@ function love.draw()
 
   
     love.graphics.setColor(1, 1, 1)
-    local offsetY = 250
+    local offsetY = 170
     local offsetX = 250
 
     
-    map:draw(-camera.x + offsetX ,-camera.y + offsetY,2.5,2.5)    
+    map:draw(-camera.x + offsetX ,-camera.y + offsetY,3.5,3.5)    
     love.graphics.setColor(1, 0, 0)
 	map:box2d_draw()
     
