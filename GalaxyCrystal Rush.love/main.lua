@@ -32,18 +32,20 @@ local walls
 local spikes = {}
 local voids = {}
 local wallJump = false 
+local brightLevel = false
 
 
 
 
 
 function love.load()
+    --createPhysics()
     background = love.graphics.newImage("background.png")
     local canJump = true;
     love.window.setMode(1080, 900)
-    camera = Camera()
+    camera = Camera(0, 0, 1920, 1080, 1)
     -- Somewhere in your code
-    camera.scale = 1
+    --camera.scale = 1
 
 
 
@@ -52,7 +54,8 @@ function love.load()
 
 
 
-    map = sti("maps/map.lua", { "box2d" })
+    --map = sti("maps/map.lua", { "box2d" })
+    map = sti("mapTest/test.lua", { "box2d" })
 
 
 
@@ -96,7 +99,7 @@ function love.load()
 
     ground = {}
     ground.body = love.physics.newBody(world, 400, 300, "static")
-    ground.shape = love.physics.newRectangleShape(800, 30) -- Breite von 800 und Höhe von 10 Pixel
+    ground.shape = love.physics.newRectangleShape(5000, 30) -- Breite von 800 und Höhe von 10 Pixel
     ground.fixture = love.physics.newFixture(ground.body, ground.shape)
     ground.fixture:setUserData("ground") 
 
@@ -108,7 +111,7 @@ function love.load()
 
 
     player = {}
-    player.body = love.physics.newBody(world, 100, 100, "dynamic")
+    player.body = love.physics.newBody(world, -100, 100, "dynamic")
     player.shape = love.physics.newCircleShape(20) -- Radius von 20 Pixel
     player.fixture = love.physics.newFixture(player.body, player.shape)
     player.body:setFixedRotation(true) -- Verhindere Drehung
@@ -130,6 +133,10 @@ end
 function love.update(dt)
 
     world:update(dt) -- Aktualisiere die Physik-Welt
+    camera:update(dt)
+    local pX, pY = player.body:getPosition()
+    camera:follow(pX+300,pY)
+    --camera:follow(cam.x,cam.y)
 
     map:update(dt)
 
@@ -149,9 +156,7 @@ function love.update(dt)
 
     local playerX, playerY = player.body:getPosition()
     object = playerX
-    camera:update(dt)
-    --camera:follow(playerX,playerY)
-    camera:follow(cam.x,cam.y)
+   
 
 
 
@@ -192,7 +197,12 @@ function love.draw()
 
   
     love.graphics.setColor(1, 1, 1)
-    map:draw(-cam.x * camera.scale, -cam.y * camera.scale)    love.graphics.setColor(1, 0, 0)
+    local offsetY = 250
+    local offsetX = 250
+
+    
+    map:draw(-camera.x + offsetX ,-camera.y + offsetY,2.5,2.5)    
+    love.graphics.setColor(1, 0, 0)
 	map:box2d_draw()
     
 
@@ -203,16 +213,20 @@ function love.draw()
     drawBackground()
     drawWall()
     drawPlayer(playerX,playerY)
-    drawGround(400,400)
     drawEnemy(enemyX,enemyY)
     DrawSpike(spikes)
     DrawVoid(voids)
     object = tostring(voids[0])
     love.graphics.print(object,0,0)
+    if brightLevel then
+        -- licht anmachen
     end
+end
     camera:detach()
     camera:draw() -- Call this here if you're using camera:fade, camera:flash or debug drawing the deadzone
 end
+
+
 
 
 
@@ -307,6 +321,11 @@ function love.keypressed(key)
     if key == "space" and cheat then
         local jumpForce = vector2.new(0, -100)
             player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
+    end
+
+
+    if key == "b" then 
+        brightLevel = true
     end
 end
 

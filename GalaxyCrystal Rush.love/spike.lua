@@ -14,7 +14,7 @@ function CreateSpike(world, x, y, t, i)
 
  function DrawSpike(spike)
     for i = 1, #spike, 1 do
-        love.graphics.setColor(0,0,0)
+        love.graphics.setColor(0,1,0)
         love.graphics.polygon("fill", spike[i].body:getWorldPoints(spike[i].shape:getPoints()))
     end
 end
