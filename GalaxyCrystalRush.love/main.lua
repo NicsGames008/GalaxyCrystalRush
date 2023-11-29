@@ -1,7 +1,9 @@
-require "vector2"
+require "libraries/files/light"
+require "libraries/files/crystal"
+require "libraries/files/vector2"
 require "graphicsLoader"
 require"enemy"
-require"player"
+require"libraries/files/player"
 require"level"
 require"spike"
 require"void"
@@ -34,6 +36,12 @@ local voids = {}
 local wallJump = false 
 local brightLevel = false
 
+local lightCrystal, lightCrystal
+local crystalOn
+local crystals
+local spawnColider
+local xCrystal, yCrystal
+
 
 
 
@@ -47,17 +55,8 @@ function love.load()
     -- Somewhere in your code
     --camera.scale = 1
 
-
-
-
-
-
-
-
     --map = sti("maps/map.lua", { "box2d" })
     map = sti("mapTest/test.lua", { "box2d" })
-
-
 
     love.physics.setMeter(64) 
     world = love.physics.newWorld(0, 9.81 * 64, true) 
@@ -109,16 +108,7 @@ function love.load()
     wall.fixture = love.physics.newFixture(wall.body, wall.shape)
     wall.fixture:setUserData("wall") 
 
-
-    player = {}
-    player.body = love.physics.newBody(world, -100, 100, "dynamic")
-    player.shape = love.physics.newCircleShape(20) -- Radius von 20 Pixel
-    player.fixture = love.physics.newFixture(player.body, player.shape)
-    player.body:setFixedRotation(true) -- Verhindere Drehung
-    player.speed = 100 -- Horizontale Geschwindigkeit
-    player.jumpForce = -2000 -- Sprungkraft
-    player.fixture:setUserData ("player") 
-
+    player = CreatePlayer(world)
 
     enemy = {}
     enemy.body = love.physics.newBody(world, 400, 275, "static")
@@ -128,12 +118,38 @@ function love.load()
     enemy.speed = 200 -- Horizontale Geschwindigkeit
     enemy.fixture:setUserData("enemy")
 
+
+        --makes an matrix to store all the needed crystals
+    crystals = {}
+    crystals[1] = crystalLoad(world, 50, 530, 1);
+    crystals[2] = crystalLoad(world, 300, 530, 2);
+    crystals[3] = crystalLoad(world, 500, 530, 3);
+    crystals[4] = crystalLoad(world, 750, 530, 4);
+
+    lightCrystal = {}
+    --the lights go to the same position as the crystal
+    for i = 1, #crystals, 1 do
+        local xCrystal, yCrystal = crystals[i].body:getPosition()
+        lightCrystal[i] = loadLight(50, xCrystal, yCrystal)
+
+    end
+
+    crystalOn = {}
+
+    local xPlayer, yPlayer = player.body:getPosition()
+    lightPlayer = loadLight(200, xPlayer, yPlayer)
+
 end
 
 function love.update(dt)
 
     world:update(dt) -- Aktualisiere die Physik-Welt
     camera:update(dt)
+
+    if spawnColider then
+        crystalColiderLoad(world, xCrystal, yCrystal,1)
+    end
+
     local pX, pY = player.body:getPosition()
     camera:follow(pX+300,pY)
     --camera:follow(cam.x,cam.y)
@@ -159,7 +175,8 @@ function love.update(dt)
     local playerX, playerY = player.body:getPosition()
     object = playerX
    
-
+	--gets the player position for the light and updates the position to get the player
+    updateLight(dt, playerX, playerY, lightPlayer)
 
 
 
@@ -189,14 +206,14 @@ function love.update(dt)
         canWallJump = true
     end
 
-    enemyMove(dt)
-
-            
+    enemyMove(dt)            
 end
 
 function love.draw()
     camera:attach()
 
+    --draws all the crystal seted up
+    DrawCrystal(crystals, crystalOn)
   
     love.graphics.setColor(1, 1, 1)
     local offsetY = 170
@@ -212,20 +229,23 @@ function love.draw()
     if killed then 
         killedScreen()
     else
-    drawBackground()
-    drawWall()
-    drawPlayer(playerX,playerY)
-    drawEnemy(enemyX,enemyY)
-    DrawSpike(spikes)
-    DrawVoid(voids)
-    object = tostring(voids[0])
-    love.graphics.print(object,0,0)
-    if brightLevel then
-        -- licht anmachen
+        drawBackground()
+        drawWall()
+        drawPlayer(playerX,playerY)
+        drawEnemy(enemyX,enemyY)
+        DrawSpike(spikes)
+        DrawVoid(voids)
+        object = tostring(voids[0])
+        love.graphics.print(object,0,0)
+        if brightLevel then
+            --draws all the lights
+            drawLight()
+        end
     end
-end
     camera:detach()
     camera:draw() -- Call this here if you're using camera:fade, camera:flash or debug drawing the deadzone
+
+
 end
 
 
@@ -268,11 +288,9 @@ function drawEnemy(x,y)
 end
 
 function killedScreen()
-        love.graphics.setColor (1,1,1)
-        love.graphics.print("Game over!", 350, 300)
+    love.graphics.setColor (1,1,1)
+    love.graphics.print("Game over!", 350, 300)
 end
-
-
 
 function love.keyreleased(key)
     if key == "space" then 
@@ -335,6 +353,8 @@ end
 
 function BeginContact(fixtureA, fixtureB, contact)
 
+    BeginContactCrystal(fixtureA, fixtureB, contact)
+
     if fixtureA:getUserData().type == "spike" and fixtureB:getUserData() == "player" then
         killed = true;
     end
@@ -349,7 +369,6 @@ function BeginContact(fixtureA, fixtureB, contact)
         player.onground = false
     end
 
-
     if fixtureA:getUserData() == "enemy" and fixtureB:getUserData() == "player" then 
 
         local nx, ny = contact:getNormal()
@@ -360,23 +379,14 @@ function BeginContact(fixtureA, fixtureB, contact)
         if ny < verticalThreshold then
             object = "test"
             win = true
-        else
-           
+        else           
             if nx < 0 then
                 killed = true
-
             elseif nx > 0 then
                 killed = true
             end
-        end
-
-    
-
-        
+        end        
     end
-
-
-
 
     if fixtureA:getUserData() == "ground" and fixtureB:getUserData() == "player" then
         print1 = true
@@ -386,22 +396,33 @@ function BeginContact(fixtureA, fixtureB, contact)
         wallJump = false
         end 
     end 
-
-
 end
 
-    function EndContact(fixtureA, fixtureB, contact)
+function EndContact(fixtureA, fixtureB, contact)
 
-        if fixtureA:getUserData() == "wall" and fixtureB:getUserData() == "player" then 
-            canWallJump = false
-            wallJump = false
-        
-        end
-
-        if fixtureA:getUserData() == "enemy" and fixtureB:getUserData() == "player" then 
-        end
+    if fixtureA:getUserData() == "wall" and fixtureB:getUserData() == "player" then 
+        canWallJump = false
+        wallJump = false
+    
     end
+end
 
+
+-- Detects contact for the crystal to make the light bigger
+function BeginContactCrystal(fixtureA, fixtureB, contact)
+    --stores the data in local variable
+    local userDataA = fixtureA:getUserData()
+    local userDataB = fixtureB:getUserData()
+
+
+    -- if userDataA and userDataA then
+
+    --     print(userDataA.type, userDataB.type)
+    -- end
+
+    spawnColider,xCrystal, yCrystal = lightTrigger(userDataA, userDataB, crystals, lightCrystal)
+    crystalTrigger(userDataA,userDataB)
+end
 
 function enemyMove(dt)
     if turn == false then
@@ -417,8 +438,4 @@ function enemyMove(dt)
             turn = false 
         end
     end
-
-
 end
-
-

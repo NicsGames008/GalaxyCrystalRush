@@ -1,0 +1,12 @@
+{
+    "Lua.diagnostics.disable": [
+        "undefined-global",
+        "duplicate-set-field"
+    ],
+    "Lua.diagnostics.globals": [
+        "crystals",
+        "lightCrystal",
+        "crystalOn",
+        "lightPlayer"
+    ]
+}
