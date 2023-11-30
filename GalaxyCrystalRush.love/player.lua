@@ -1,4 +1,4 @@
-require "libraries/files/vector2"
+require "vector2"
 
 local player
 

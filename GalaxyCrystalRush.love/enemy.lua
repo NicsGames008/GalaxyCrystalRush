@@ -1,4 +1,4 @@
-require "libraries/files/vector2"  
+require "vector2"  
 function CreateEnemy(world, x, y, t, i)  
     local enemy = {}  
     enemy.body = love.physics.newBody(world, x, y, "dynamic")  

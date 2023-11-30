@@ -17,9 +17,10 @@ function loadLight(radius, xPosition, yPosition)
 end
 
 
-function drawLight()
+function drawLight(Width, Height)
     -- Draw the light world with white color
 	newLightWorld:Draw()
+    newLightWorld:Resize(Width, Height)
 end
 
 function updateLight(dt, xPosition, yPosition, lightPlayer)
