@@ -261,7 +261,7 @@ function love.draw()
         killedScreen()
     else
         drawBackground()
-        drawWall()
+        drawWalls(walls)
         drawPlayer(playerX,playerY)
         drawEnemy(enemyX,enemyY)
         DrawSpike(spikes)
@@ -442,7 +442,6 @@ function EndContact(fixtureA, fixtureB, contact)
         if fixtureA:getUserData().type == "enemy" and fixtureB:getUserData().type == "player" then
         end
     end
-end
 
 
 -- Detects contact for the crystal to make the light bigger

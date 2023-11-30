@@ -14,7 +14,7 @@ function CreatePlayer(world)
     -- player.body:setFixedRotation(true)
 
     player = {}
-    player.body = love.physics.newBody(world, -100, 100, "dynamic")
+    player.body = love.physics.newBody(world, -100, -500, "dynamic")
     player.shape = love.physics.newCircleShape(20) -- Radius von 20 Pixel
     player.fixture = love.physics.newFixture(player.body, player.shape)
     player.body:setFixedRotation(true) -- Verhindere Drehung
