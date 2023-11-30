@@ -32,6 +32,7 @@ local grounds = {}
 local walls = {}
 local spikes = {}
 local voids = {}
+local crystals = {}
 local wallJump = false 
 local brightLevel = true
 local text = "false"
@@ -105,20 +106,6 @@ function love.load()
     cam.x = 0
     cam.y = 0
 
-    ground = {}
-    ground.body = love.physics.newBody(world, 400, 300, "static")
-    ground.shape = love.physics.newRectangleShape(5000, 30) -- Breite von 800 und Höhe von 10 Pixel
-    ground.fixture = love.physics.newFixture(ground.body, ground.shape)
-    ground.fixture:setUserData(({object = ground,type = "ground", index = i})) 
-
-    wall = {}
-    wall.body = love.physics.newBody(world, 200, 200, "static")
-    wall.shape = love.physics.newRectangleShape(10, 200) -- Breite von 10 und Höhe von 200 Pixel
-    wall.fixture = love.physics.newFixture(wall.body, wall.shape)
-    wall.fixture:setUserData(({object = wall,type = "wall", index = i})) 
-    table.insert(walls, wall)
-
-
 
     player = {}
     player.body = love.physics.newBody(world, -100, -500, "dynamic")
@@ -144,6 +131,9 @@ function love.load()
     loadWalls()
     loadSpikes()
     loadVoids()
+
+    --makes an matrix to store all the needed crystals
+    crystals[1] = crystalLoad(world, 900, -340, 1);
 
 
     local playerX, playerY = player.body:getPosition()
@@ -253,12 +243,13 @@ function love.draw()
     drawEnemy(enemyX,enemyY)
     DrawSpike(spikes)
     DrawVoid(voids)
+    DrawCrystal(crystals, crystalOn)
     object = tostring(text)
     love.graphics.print(object,0,0)
     if brightLevel then
         -- licht anmachen
-        local Height = love.graphics:getHeight()
         local Width = love.graphics:getWidth()
+        local Height = love.graphics:getHeight()
         drawLight(Width, Height)
     end
 
