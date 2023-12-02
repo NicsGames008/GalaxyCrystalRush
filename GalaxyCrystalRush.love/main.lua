@@ -27,16 +27,21 @@ local cheat = false
 local sti = require"libraries/sti"
 local Camera = require "Camera"
 local cam
-local enemies
+local enemies = {}
 local grounds = {}
 local walls = {}
 local spikes = {}
 local voids = {}
-local crystals = {}
 local wallJump = false 
 local brightLevel = true
 local text = "false"
 local lightPlayer
+local barriers = {}
+local enemyBarriers = {}
+local crystals = {}
+
+
+
 
 
 
@@ -46,15 +51,13 @@ local lightPlayer
 
 
 function love.load()
-    --createPhysics()
     background = love.graphics.newImage("background.png")
     local canJump = true;
-    love.window.setMode(1080, 900)
-    love.window.setFullscreen(true)
+    love.window.setMode(1920, 1080)
+    --love.window.setFullscreen(true)
 
     camera = Camera(0, 0, 0, 0, 0.5)
-    -- Somewhere in your code
-    --camera.scale = 1
+   
 
 
 
@@ -63,7 +66,6 @@ function love.load()
 
 
 
-    --map = sti("mapTest/mmap.lua", { "box2d" })
     map = sti("mapTest/test.lua", { "box2d" })
 
 
@@ -71,9 +73,6 @@ function love.load()
     love.physics.setMeter(64) 
     world = love.physics.newWorld(0, 9.81 * 64, true) 
     world:setCallbacks(BeginContact, EndContact, nil, nil)
-
-    table.insert(spikes, CreateSpike(world,1000, -320))
-    table.insert(voids, CreateVoid(world,300, -100))
 
 
 
@@ -106,6 +105,20 @@ function love.load()
     cam.x = 0
     cam.y = 0
 
+    ground = {}
+    ground.body = love.physics.newBody(world, 400, 300, "static")
+    ground.shape = love.physics.newRectangleShape(5000, 30) -- Breite von 800 und Höhe von 10 Pixel
+    ground.fixture = love.physics.newFixture(ground.body, ground.shape)
+    ground.fixture:setUserData(({object = ground,type = "ground", index = i})) 
+
+    wall = {}
+    wall.body = love.physics.newBody(world, 200, 200, "static")
+    wall.shape = love.physics.newRectangleShape(10, 200) -- Breite von 10 und Höhe von 200 Pixel
+    wall.fixture = love.physics.newFixture(wall.body, wall.shape)
+    wall.fixture:setUserData(({object = wall,type = "wall", index = i})) 
+    table.insert(walls, wall)
+
+
 
     player = {}
     player.body = love.physics.newBody(world, -100, -500, "dynamic")
@@ -117,13 +130,13 @@ function love.load()
     player.fixture:setUserData (({object = player,type = "player", index = i})) 
 
 
-    enemy = {}
-    enemy.body = love.physics.newBody(world, 700, -340, "static")
+ --[[    enemy = {}
+    enemy.body = love.physics.newBody(world, -700, -340, "static")
     enemy.shape = love.physics.newRectangleShape(50,50) -- Radius von 20 Pixel
     enemy.fixture = love.physics.newFixture(enemy.body, enemy.shape)
     enemy.body:setFixedRotation(true) -- Verhindere Drehung
     enemy.speed = 200 -- Horizontale Geschwindigkeit
-    enemy.fixture:setUserData(({object = enemy,type = "enemy", index = i}))
+    enemy.fixture:setUserData(({object = enemy,type = "enemy", index = i})) ]]
 
 
 
@@ -131,9 +144,8 @@ function love.load()
     loadWalls()
     loadSpikes()
     loadVoids()
-
-    --makes an matrix to store all the needed crystals
-    crystals[1] = crystalLoad(world, 900, -340, 1);
+    loadBarriers()
+    loadCrystals()
 
 
     local playerX, playerY = player.body:getPosition()
@@ -198,14 +210,9 @@ function love.update(dt)
         canWallJump = true
     end
 
-    if player.body:isTouching(wall.body) and released then
-        object = "ground"
-        canJump = true
-        jumpCount = 0
-        canWallJump = true
-    end
+    
 
-    enemyMove(dt)
+    --enemyMove(dt)
 
             
     local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX,pY)
@@ -225,31 +232,28 @@ function love.draw()
     local offsetX = 250
 
 
-    map:drawLayer(map.layers["Miscelaneous"])  
+    map:drawLayer(map.layers["Ground and walls"])  
     map:drawLayer(map.layers["Spikes"])  
     map:drawLayer(map.layers["Background"])  
-    map:drawLayer(map.layers["void"])
-    map:drawLayer(map.layers["Tile Layer 1"])  
-
-
+    map:drawLayer(map.layers["Void"])
+    map:drawLayer(map.layers["Purple crystals"])  
+    map:drawLayer(map.layers["Blue crystal"])  
+    map:drawLayer(map.layers["Enemy"])  
+    map:drawLayer(map.layers["Moving platform/ Spikes"])
 
     love.graphics.setColor(1, 0, 0)
 	map:box2d_draw()
     
 
 
-    drawBackground()
     drawPlayer(playerX,playerY)
-    drawEnemy(enemyX,enemyY)
-    DrawSpike(spikes)
-    DrawVoid(voids)
-    DrawCrystal(crystals, crystalOn)
+    love.graphics.setColor(0,0,0)
     object = tostring(text)
     love.graphics.print(object,0,0)
     if brightLevel then
         -- licht anmachen
-        local Width = love.graphics:getWidth()
         local Height = love.graphics:getHeight()
+        local Width = love.graphics:getWidth()
         drawLight(Width, Height)
     end
 
@@ -306,6 +310,7 @@ end
 function love.keyreleased(key)
     if key == "space" then 
         released = true
+        text = released
     end
 end
 
@@ -322,20 +327,21 @@ function love.keypressed(key)
     end
 
 
+
     if key == "space" and cheat == false and wallJump then
         if canJump and released then
-            local jumpForceY = -100  -- Adjust this value to control the jump height
+            local jumpForceY = -300  -- Adjust this value to control the jump height
             local jumpForceX = 0  -- Initialize X force to 0
             
             -- Check player's direction
             if love.keyboard.isDown("left") then
-                jumpForceX = 50  -- Apply force to the right
+                jumpForceX = 100  -- Apply force to the right
             elseif love.keyboard.isDown("right") then
-                jumpForceX = -50  -- Apply force to the left
+                jumpForceX = -100  -- Apply force to the left
             end
             
             player.body:applyLinearImpulse(jumpForceX, jumpForceY)
-            canJump = false
+            canJump = true
             released = false
         end
     end
@@ -343,10 +349,18 @@ function love.keypressed(key)
 
 
 
-    if key == "c" and cheat == false then
+    if key == "c" then
+        if  cheat == false then
         object = "cheats on"
         cheat = true
+        else
+            object = "cheats on"
+            cheat = false
+        end
+
     end
+
+    
    
 
     if key == "space" and cheat then
@@ -381,6 +395,12 @@ function BeginContact(fixtureA, fixtureB, contact)
     end
 
     if fixtureA:getUserData().type == "wall" and fixtureB:getUserData().type == "player" then 
+        text = "walll"
+        canWallJump = true
+        wallJump = true
+        player.onground = false
+    end
+    if fixtureA:getUserData().type == "player" and fixtureB:getUserData().type == "wall" then 
         canWallJump = true
         wallJump = true
         player.onground = false
@@ -403,8 +423,8 @@ function BeginContact(fixtureA, fixtureB, contact)
     if fixtureA:getUserData().type == "ground" and fixtureB:getUserData().type == "player" then
         print1 = true
         local normal = vector2.new(contact:getNormal())
-        text = "floor"
         if normal.y == -1 then
+            text = "floorrrr"
         player.onground = true
         wallJump = false
         canJump = true
@@ -428,7 +448,7 @@ end
         end
     end
 
-
+--[[ 
 function enemyMove(dt)
     if turn == false then
         enemy.body:setX(enemy.body:getX()+ (50*dt))
@@ -445,8 +465,37 @@ function enemyMove(dt)
     end
 
 
-end
+end ]]
 
+
+function enemyMove(dt)
+    for _, enemy in ipairs(enemies) do
+        if not enemy.killed then
+            local enemyX, enemyY = enemy.body:getPosition()
+            local nextX = enemyX + (enemy.speed * dt)
+
+            -- Check if the next position hits a barrier
+            local hitBarrier = false
+            for _, barrier in ipairs(enemyBarriers) do
+                local barrierX = barrier.body:getX()
+                local barrierWidth = barrier.fixture:getUserData().width
+
+                if nextX + enemy.shape:getRadius() > barrierX - barrierWidth / 2 and
+                   nextX - enemy.shape:getRadius() < barrierX + barrierWidth / 2 then
+                    hitBarrier = true
+                    break
+                end
+            end
+
+            if not hitBarrier then
+                enemy.body:setX(nextX)
+            else
+                -- If a barrier is hit, change the direction
+                enemy.speed = -enemy.speed
+            end
+        end
+    end
+end
 
 function loadGround()
     if map.layers['Ground'] then
@@ -642,42 +691,116 @@ function loadVoids()
                 
             end
 
-            -- check for each polygon shape --
-            if obj.shape == "polygon" then
-                
-                -- make a table for the positions of each point for each polygon --
-                local vertices = {}
-                
-                -- here you get the position of the polygon points and put them in the table --
-                for _, point in ipairs(obj.polygon) do
-                    
-                    -- in here we subtract the polygon pos for it to go to the right place --
-                    table.insert (vertices, point.x - obj.x)
-                    table.insert (vertices, point.y - obj.y)
-                    
-                end
 
-                walls.body = love.physics.newBody(world, obj.x, obj.y, "static")
-                -- unpack here the x and y coordinates of each point to make the shape --
-                walls.shape = love.physics.newPolygonShape(unpack(vertices))
-                walls.fixture = love.physics.newFixture(walls.body, walls.shape, 1)
-                table.insert(walls, wall)
-
-            end
-
-            -- check for each ellipse shape --
-            if obj.shape == "ellipse" then
             
-                -- here do the same as the rectangle to get it to the right position --
-                walls.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
-                -- to make the shape take the width and devide it by 2 --
-                walls.shape = love.physics.newCircleShape(obj.width / 2)
-                walls.fixture = love.physics.newFixture(walls.body, walls.shape, 1)
-                table.insert(walls, wall)
-
-            end
-
         end
 
     end
 end
+
+
+function checkEnemyDistanceToCrystal(crystalX, crystalY)
+    local crystalPosition = vector2.new(crystalX, crystalY)
+
+    for _, enemy in ipairs(enemies) do
+        local enemyPosition = vector2.new(enemy.body:getX(), enemy.body:getY())
+        local distanceVector = vector2.sub(crystalPosition, enemyPosition)
+        local distance = vector2.magnitude(distanceVector)
+
+        if distance <= 400 then
+            enemy.killed = true
+        end
+    end
+end
+
+
+
+function loadBarriers()
+    if map.layers['Enemy barriers'] then
+
+        -- iterate for every colition shapes you made in tiled --
+        for i, obj in pairs(map.layers['Enemy barriers'].objects) do
+            enemyBarrier = {}
+
+            -- check what type of shape it is --
+            
+            -- check for each rectangle shape --
+            if obj.shape == "rectangle" then
+
+                -- the center of the colition box will be on the top left of where it is suposed to be --
+                -- so i added its width devided by 2 on the x pos and did the same for its y pos with height here --
+                enemyBarrier.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
+                enemyBarrier.shape = love.physics.newRectangleShape(obj.width,obj.height)
+                enemyBarrier.fixture = love.physics.newFixture(enemyBarrier.body, enemyBarrier.shape, 1)
+                enemyBarrier.fixture:setUserData(({object = enemyBarrier,type = "enemyBarrier", index = i,width = obj.width}))
+
+                table.insert(enemyBarriers, enemyBarrier)
+                
+            end
+
+            
+        end
+
+    end
+
+    if map.layers['Wall jump cancel'] then
+
+        -- iterate for every colition shapes you made in tiled --
+        for i, obj in pairs(map.layers['Wall jump cancel'].objects) do
+            barrier = {}
+
+            -- check what type of shape it is --
+            
+            -- check for each rectangle shape --
+            if obj.shape == "rectangle" then
+
+                -- the center of the colition box will be on the top left of where it is suposed to be --
+                -- so i added its width devided by 2 on the x pos and did the same for its y pos with height here --
+                barrier.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
+                barrier.shape = love.physics.newRectangleShape(obj.width,obj.height)
+                barrier.fixture = love.physics.newFixture(barrier.body, barrier.shape, 1)
+                barrier.fixture:setUserData(({object = barrier,type = "barrier", index = i}))
+
+                table.insert(barriers, barrier)
+                
+            end
+
+            
+        end
+
+    end
+end 
+
+function loadCrystals()
+    if map.layers['Crystals'] then
+
+        -- iterate for every colition shapes you made in tiled --
+        for i, obj in pairs(map.layers['Crystals'].objects) do
+            crystal = {}
+
+            -- check what type of shape it is --
+            
+            -- check for each rectangle shape --
+            if obj.shape == "rectangle" then
+
+                -- the center of the colition box will be on the top left of where it is suposed to be --
+                -- so i added its width devided by 2 on the x pos and did the same for its y pos with height here --
+                crystal.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
+                crystal.shape = love.physics.newRectangleShape(obj.width,obj.height)
+                crystal.fixture = love.physics.newFixture(crystal.body, crystal.shape, 1)
+                crystal.fixture:setUserData(({object = crystal,type = "crystal", index = i}))
+
+                table.insert(crystals, crystal)
+                
+            end
+
+            
+        end
+
+    end
+end
+  
+
+
+
+
