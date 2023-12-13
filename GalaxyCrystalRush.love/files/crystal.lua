@@ -1,17 +1,34 @@
-function crystalLoad(world, xPosition, yPosition, index)
-    --all values and trigers for the crytal
-	crystal = {}    
-    crystal.body = love.physics.newBody(world, xPosition, yPosition, "static")
-    crystal.shape = love.physics.newRectangleShape (20, 40)
-	crystal.fixture = love.physics.newFixture (crystal.body, crystal.shape, 2)
-	crystal.fixture:setSensor(true)
-    crystal.fixture:setUserData({type = "offCrystal", index = index})
+function loadCrystals(world, crystals, crystal, lightCrystal)
+    if map.layers['Crystals'] then
 
-    return crystal
+        for i, obj in pairs(map.layers['Crystals'].objects) do
+            crystal = {}
+
+            if obj.shape == "rectangle" then
+
+               
+                crystal.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
+                crystal.shape = love.physics.newRectangleShape(obj.width,obj.height)
+                crystal.fixture = love.physics.newFixture(crystal.body, crystal.shape, 1)
+                crystal.fixture:setSensor(true)
+                crystal.fixture:setUserData(({object = crystal,type = "offCrystal", index = i}))
+
+                print(obj.id)
+
+                table.insert(crystals, crystal)
+            end
+
+            --the lights go to the same position as the crystal
+            local xCrystal, yCrystal = crystal.body:getPosition()
+            lightCrystal[i] = loadLight(100, xCrystal, yCrystal)
+        end
+        return crystals, crystal, lightCrystal
+    end
 end
 
-function DrawCrystal(crystal, crystalOn)
     --draws all the crystal created
+
+function DrawCrystal(crystal, crystalOn)
     for i = 1, #crystal, 1 do
         if crystal[i] then    
             love.graphics.setColor(1,1,0)         
@@ -27,27 +44,3 @@ function DrawCrystal(crystal, crystalOn)
         end
     end 
 end 
-
-function crystalColiderLoad(world, xPosition, yPosition, index)
-    --all values and trigers for the crytal
-    crystalColider = {}
-    crystalColider.body = love.physics.newBody(world, xPosition, yPosition  , "static")
-    crystalColider.shape = love.physics.newCircleShape(200)
-    crystalColider.fixture = love.physics.newFixture(crystalColider.body, crystalColider.shape, 2)
-    crystalColider.fixture:setSensor(true)
-    crystalColider.fixture:setUserData({type = "crystalColider", index = index})
-
-    return crystal
-end
-
-function crystalTrigger(userDataA, userDataB)
-    if userDataA and userDataB and userDataA.type == "enemy" and userDataB.type == "crystalColider" then
-        --put the enemy death function here
-        print("enemy dead")
-    end 
-
-    if userDataA and userDataB and userDataA.type == "crystalColider" and userDataB.type == "enemy" then
-        --put the enemy death function here
-        print("enemy dead")
-    end 
-end

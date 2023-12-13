@@ -23,9 +23,9 @@ function drawLight(Width, Height)
     newLightWorld:Resize(Width, Height)
 end
 
-function updateLight(dt, xPosition, yPosition, lightPlayer)
+function updateLight(dt, xPosition, yPosition, light)
     -- Move the light to the player position with altitude 35
-	lightPlayer:SetPosition(xPosition, yPosition, 35)
+	light:SetPosition(xPosition, yPosition, 0.3)
 
     -- Recalculate the light world
 	newLightWorld:Update()
