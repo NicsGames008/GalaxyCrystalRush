@@ -38,6 +38,7 @@ local boostTimer = 0
 local isBoostActive = false
 local finishs= {}
 local success = false
+local initialized = false
 
 local Shadows = require("libraries/shadows")
 local LightWorld = require("libraries/shadows.LightWorld")
@@ -151,15 +152,17 @@ function love.update(dt)
     local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
     updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
 
-    -- Iterate through crystals, update their light positions, and check enemy distance to crystals
-    for i = 1, #crystals, 1 do
-        local xCrystal, yCrystal = crystals[i].body:getPosition()
-        local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
-        updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
-
-        -- Check if the crystal is of type "onCrystal" and update enemies accordingly
-        if crystals[i].fixture:getUserData().type == "onCrystal" then
-            checkEnemyDistanceToCrystal(xCrystal, yCrystal)
+    if brightLevel then
+        -- Iterate through crystals, update their light positions, and check enemy distance to crystals
+        for i = 1, #crystals, 1 do
+            local xCrystal, yCrystal = crystals[i].body:getPosition()
+            local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
+            updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
+            
+            -- Check if the crystal is of type "onCrystal" and update enemies accordingly
+            if crystals[i].fixture:getUserData().type == "onCrystal" then
+                checkEnemyDistanceToCrystal(xCrystal, yCrystal)
+            end
         end
     end
 
@@ -445,16 +448,14 @@ function BeginContact(fixtureA, fixtureB, contact)
 
     -- Check if the player collides with an offCrystal and handle accordingly
     if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" then
+        local light = lightCrystal[fixtureA:getUserData().index]
         -- Get the position of the crystal and create a light source
         xCrystal, yCrystal = crystals[fixtureA:getUserData().index].body:getPosition()
-        --lightCrystal[fixtureA:getUserData().index] = loadLight(2000, xCrystal, yCrystal)
-        
-        print(lightCrystal[fixtureA:getUserData().index]:GetRadius())
-        lightCrystal[fixtureA:getUserData().index]:SetRadius(2000)
-        print(lightCrystal[fixtureA:getUserData().index]:GetRadius())
+        light:Remove()
+        lightCrystal[fixtureA:getUserData().index] = loadLight(2000, xCrystal, yCrystal)
 
         -- Recalculate the light world
-	    --newLightWorld:Update()
+	    UpdateLightWorld()
 
         -- Change the type of the crystal to "onCrystal"
         fixtureA:getUserData().type = "onCrystal"
