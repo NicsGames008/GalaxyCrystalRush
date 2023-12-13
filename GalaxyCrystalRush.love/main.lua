@@ -10,11 +10,9 @@ local player
 local ground = {}
 local playerX, playerY
 local killed = false
-local object = "idk"
 local jumpCount = 0
 local released = true
 local cheat = false
-local cam
 local enemies = {}
 local grounds = {}
 local walls = {}
@@ -22,9 +20,9 @@ local spikes = {}
 local voids = {}
 local wallJump = false
 local brightLevel = true
-local text = "false"
 local lightPlayer
 local lightCrystal = {}
+local checkpointLight = {}
 local barriers ={}
 local crystals = {}
 local enemyBarriers =  {}
@@ -68,9 +66,6 @@ function love.load()
     spriteLayer.sprites = {}
 
     -- Set up camera coordinates
-    cam = {}
-    cam.x = 0
-    cam.y = 0
 
     -- Create player and load various game elements
     player = CreatePlayer(world)
@@ -79,7 +74,7 @@ function love.load()
     spikes, spike = loadSpikes(world, spikes, spike)
     voids, void = loadVoids(world, voids, void)
     enemyBarriers, enemyBarrier, barriers, barrier = loadBarriers(world, enemyBarriers, enemyBarrier, barriers, barrier)
-    crystals, crystal, lightCrystal = loadCrystals(world, crystals, crystal, lightCrystal)
+    crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
     enemies, enemy = loadEnemies(world, enemies, enemy)
     createBoostPlatform()
     createFinish()
@@ -256,7 +251,7 @@ function killedScreen()
 
     -- Set the text color to white and display "Game Over!" at the calculated position
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Game over!", middleX, middleY)
+    love.graphics.print("Game over! Press r to restart game or p to go to checkpoint", middleX, middleY)
 end
 function successScreen()
     -- Get the width and height of the screen
@@ -372,6 +367,73 @@ function love.keypressed(key)
     if key == "z" then
         print(player.body:getPosition())
     end
+
+    if key == "p" then
+        print(player.body:getPosition())
+    end
+
+    if key == "r" then
+
+    world:destroy()
+
+    ground = {}
+    killed = false
+    jumpCount = 0
+     released = true
+     cheat = false
+     enemies = {}
+     grounds = {}
+     walls = {}
+     spikes = {}
+     voids = {}
+     wallJump = false
+     brightLevel = true
+     lightCrystal = {}
+     checkpointLight = {}
+     barriers ={}
+     crystals = {}
+     enemyBarriers =  {}
+     jumpf = 1500
+     cheatF = 1000
+     walljumpf = 1500
+     boosts = {}
+     boostDuration = 3 
+     boostMaxVelocity = 1000
+     boostTimer = 0
+     isBoostActive = false
+     finishs= {}
+     success = false
+
+
+        love.physics.setMeter(64)
+        world = love.physics.newWorld(0, 15 * 64, true)
+        world:setCallbacks(BeginContact, EndContact, nil, nil)
+    
+        -- Initialize Box2D physics for the map
+        map:box2d_init(world)
+    
+        -- Add a custom layer for sprites to the map
+        map:addCustomLayer("Sprite Layer", 3)
+    
+        -- Initialize and define functions for a custom sprite layer
+        local spriteLayer = map.layers["Sprite Layer"]
+        spriteLayer.sprites = {}
+    
+        -- Set up camera coordinates
+    
+        -- Create player and load various game elements
+        player = CreatePlayer(world)
+        grounds, ground = loadGround(world, grounds, ground)
+        walls, wall = loadWalls(world, walls, wall)
+        spikes, spike = loadSpikes(world, spikes, spike)
+        voids, void = loadVoids(world, voids, void)
+        enemyBarriers, enemyBarrier, barriers, barrier = loadBarriers(world, enemyBarriers, enemyBarrier, barriers, barrier)
+        crystals, lightCrystal = loadCrystals(world,crystals,lightCrystal)
+        enemies, enemy = loadEnemies(world, enemies, enemy)
+        createBoostPlatform()
+        createFinish()
+       
+    end
     ------------------------------------------------------------------------------------------------------------------------
 
 end
@@ -455,7 +517,6 @@ function BeginContact(fixtureA, fixtureB, contact)
         -- Enable boost
         isBoostActive = true
         boostTimer = boostDuration
-    
         -- Set the player's maximum velocity to boostMaxVelocity
         player.body:setLinearVelocity(boostMaxVelocity * math.sign(currentVelocityX), currentVelocityY)
         player.onground = true
@@ -463,6 +524,13 @@ function BeginContact(fixtureA, fixtureB, contact)
         canJump = true
         jumpCount = 0
         canWallJump = true
+    end
+    if fixtureA:getUserData().type == "checkpoint" and fixtureB:getUserData().type == "player" then
+        
+        local checkPointX, checkPointY = fixtureA.body:getPosition()
+        player.checkpointX =  checkPointX
+        player.checkpointY =  checkPointY
+
     end
 
 end

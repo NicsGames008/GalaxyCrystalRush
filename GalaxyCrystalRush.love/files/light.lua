@@ -63,3 +63,8 @@ function lightTrigger(userDataA, userDataB, crystals, lightCrystal)
         return spawnColider, xCrystal,yCrystal
     end
 end
+
+
+function deleteLight()
+    --implement
+end

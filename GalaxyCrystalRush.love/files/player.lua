@@ -16,6 +16,8 @@ function CreatePlayer(world)
     player.speed = 2000
     player.jumpForce = -400
     player.fixture:setUserData(({object = player,type = "player", index = i})) 
+    player.checkpointX = 0
+    player.checkpointY = 0
 
     -- Return the created player object
     return player
