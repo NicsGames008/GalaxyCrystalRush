@@ -5,6 +5,12 @@ require"files/player"
 require"files/level"
 require "files/light"
 require "files/crystal"
+local STATE_MAIN_MENU = 0
+local STATE_GAMEPLAY = 1
+local STATE_PAUSE = 2
+local STATE_KILLED = 3
+local STATE_WIN = 4
+
 local world
 local player
 local ground = {}
