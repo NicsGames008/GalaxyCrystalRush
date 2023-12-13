@@ -39,6 +39,9 @@ local isBoostActive = false
 local finishs= {}
 local success = false
 
+local Shadows = require("libraries/shadows")
+local LightWorld = require("libraries/shadows.LightWorld")
+--local newLightWorld = LightWorld:new()
 
 -- load 
 function love.load()
@@ -79,8 +82,8 @@ function love.load()
     spikes, spike = loadSpikes(world, spikes, spike)
     voids, void = loadVoids(world, voids, void)
     enemyBarriers, enemyBarrier, barriers, barrier = loadBarriers(world, enemyBarriers, enemyBarrier, barriers, barrier)
-    crystals, crystal, lightCrystal = loadCrystals(world, crystals, crystal, lightCrystal)
-    enemies, enemy = loadEnemies(world, enemies, enemy)
+    crystals, lightCrystal = loadCrystals(world, crystals,  lightCrystal)
+    enemies = loadEnemies(world, enemies)
     createBoostPlatform()
     createFinish()
 
@@ -189,6 +192,7 @@ function love.update(dt)
         killed = true
     end
     
+    UpdateLightWorld()
 end
 
 --draw
@@ -443,7 +447,14 @@ function BeginContact(fixtureA, fixtureB, contact)
     if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" then
         -- Get the position of the crystal and create a light source
         xCrystal, yCrystal = crystals[fixtureA:getUserData().index].body:getPosition()
-        lightCrystal[fixtureA:getUserData().index] = loadLight(2000, xCrystal, yCrystal)
+        --lightCrystal[fixtureA:getUserData().index] = loadLight(2000, xCrystal, yCrystal)
+        
+        print(lightCrystal[fixtureA:getUserData().index]:GetRadius())
+        lightCrystal[fixtureA:getUserData().index]:SetRadius(2000)
+        print(lightCrystal[fixtureA:getUserData().index]:GetRadius())
+
+        -- Recalculate the light world
+	    --newLightWorld:Update()
 
         -- Change the type of the crystal to "onCrystal"
         fixtureA:getUserData().type = "onCrystal"

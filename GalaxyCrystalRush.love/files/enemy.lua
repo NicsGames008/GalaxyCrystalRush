@@ -2,11 +2,11 @@ require "files/vector2"
 
 -- Load enemy layer
 
-function loadEnemies(world, enemies, enemy)
+function loadEnemies(world, enemies)
     if map.layers['Enemies'] then
 
         for i, obj in pairs(map.layers['Enemies'].objects) do
-            enemy = {}
+            local enemy = {}
 
             if obj.shape == "rectangle" then
 
@@ -19,13 +19,12 @@ function loadEnemies(world, enemies, enemy)
                 enemy.fixture:setUserData(({object = enemy,type = "enemy", index = i,x = obj.x + obj.width / 2 ,obj.y + obj.height / 2  }))
                 enemy.killed = false
 
-                print(obj.id)
 
                 table.insert(enemies, enemy)
             end
 
         end
-        return enemies, enemy
+        return enemies
     end
 end
 

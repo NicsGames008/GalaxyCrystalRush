@@ -11,7 +11,7 @@ function loadLight(radius, xPosition, yPosition)
 
     -- Create a light on the light world, with radius 300
     light = Light:new(newLightWorld, radius) 
-    light:SetPosition(xPosition,yPosition, 35)
+    light:SetPosition(xPosition,yPosition, 0.3)
 
     return light
 end
@@ -28,38 +28,42 @@ function updateLight(dt, xPosition, yPosition, light)
 	light:SetPosition(xPosition, yPosition, 0.3)
 
     -- Recalculate the light world
-	newLightWorld:Update()
+	--newLightWorld:Update()
 end
 
-function lightTrigger(userDataA, userDataB, crystals, lightCrystal)
-    -- userDataA and userDataB and userDataA.type == "offCrystal" and userDataB.type == "player" 
-    if userDataA and userDataB and userDataA.type == "player" and userDataB.type == "offCrystal" then
-
-
-        --gets the position of the activated crystal and make a new bigger light
-        xCrystal, yCrystal = crystals[userDataB.index].body:getPosition()
-        lightCrystal[userDataB.index] = loadLight(400, xCrystal, yCrystal)
-
-        --make it so you can't activat the same light
-        userDataB.type = "onCrystal"
-
-        spawnColider = true
-
-        return spawnColider, xCrystal,yCrystal
-    end
-
-    if userDataA and userDataB and userDataA.type == "offCrystal" and userDataB.type == "player" then
-
-
-        --gets the position of the activated crystal and make a new bigger light
-        xCrystal, yCrystal = crystals[userDataA.index].body:getPosition()
-        lightCrystal[userDataA.index] = loadLight(400, xCrystal, yCrystal)
-
-        --make it so you can't activat the same light
-        userDataA.type = "onCrystal"
-
-        spawnColider = true
-
-        return spawnColider, xCrystal,yCrystal
-    end
+function UpdateLightWorld()
+    newLightWorld:Update()
 end
+
+-- function lightTrigger(userDataA, userDataB, crystals, lightCrystal)
+--     -- userDataA and userDataB and userDataA.type == "offCrystal" and userDataB.type == "player" 
+--     if userDataA and userDataB and userDataA.type == "player" and userDataB.type == "offCrystal" then
+
+
+--         --gets the position of the activated crystal and make a new bigger light
+--         xCrystal, yCrystal = crystals[userDataB.index].body:getPosition()
+--         lightCrystal[userDataB.index] = loadLight(400, xCrystal, yCrystal)
+
+--         --make it so you can't activat the same light
+--         userDataB.type = "onCrystal"
+
+--         spawnColider = true
+
+--         return spawnColider, xCrystal,yCrystal
+--     end
+
+--     if userDataA and userDataB and userDataA.type == "offCrystal" and userDataB.type == "player" then
+
+
+--         --gets the position of the activated crystal and make a new bigger light
+--         xCrystal, yCrystal = crystals[userDataA.index].body:getPosition()
+--         lightCrystal[userDataA.index] = loadLight(400, xCrystal, yCrystal)
+
+--         --make it so you can't activat the same light
+--         userDataA.type = "onCrystal"
+
+--         spawnColider = true
+
+--         return spawnColider, xCrystal,yCrystal
+--     end
+-- end
