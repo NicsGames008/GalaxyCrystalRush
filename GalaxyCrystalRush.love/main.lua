@@ -44,11 +44,6 @@ local boostTimer = 0
 local isBoostActive = false
 local finishs= {}
 local success = false
-local initialized = false
-
-local Shadows = require("libraries/shadows")
-local LightWorld = require("libraries/shadows.LightWorld")
---local newLightWorld = LightWorld:new()
 
 -- load 
 function love.load()
@@ -99,32 +94,6 @@ function love.load()
     local playerX, playerY = player.body:getPosition()
     local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
     lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
-
-
-end
-
--- Function to check the distance between enemies and a crystal
-function checkEnemyDistanceToCrystal(crystalX, crystalY)
-    -- Create a vector representing the position of the crystal
-    local crystalPosition = vector2.new(crystalX, crystalY)
-
-    -- Iterate through each enemy in the 'enemies' table
-    for _, enemy in ipairs(enemies) do
-        -- Get the position of the current enemy
-        local enemyPosition = vector2.new(enemy.body:getX(), enemy.body:getY())
-
-        -- Calculate the vector between the crystal and the enemy
-        local distanceVector = vector2.sub(crystalPosition, enemyPosition)
-
-        -- Calculate the distance between the crystal and the enemy
-        local distance = vector2.magnitude(distanceVector)
-
-        -- Check if the distance is within a certain range (20000 units in this case)
-        if distance <= 2500 then
-            -- Mark the enemy as killed
-            enemy.killed = true
-        end
-    end
 end
 
 -- update
@@ -181,25 +150,25 @@ function love.update(dt)
     end
 
 
-    local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
-    --run boost timer
-    if isBoostActive and cheat == false then
-        -- Decrease the boost timer
-        boostTimer = boostTimer - dt
+    -- local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
+    -- --run boost timer
+    -- if isBoostActive and cheat == false then
+    --     -- Decrease the boost timer
+    --     boostTimer = boostTimer - dt
 
-        -- If the boost duration is over deactivate boost
-        if boostTimer <= 0 then
-            isBoostActive = false
-        end
-    end    
-    --regular max velocity
-    if isBoostActive == false and math.abs(currentVelocityX) > 700 and cheat == false then
-        player.body:setLinearVelocity(700 * math.sign(currentVelocityX), currentVelocityY)
-    end
-    --kill player if he falls out of map
-    if pY > 1200 and cheat == false then
-        killed = true
-    end
+    --     -- If the boost duration is over deactivate boost
+    --     if boostTimer <= 0 then
+    --         isBoostActive = false
+    --     end
+    -- end    
+    -- --regular max velocity
+    -- if isBoostActive == false and math.abs(currentVelocityX) > 700 and cheat == false then
+    --     player.body:setLinearVelocity(700 * math.sign(currentVelocityX), currentVelocityY)
+    -- end
+    -- --kill player if he falls out of map
+    -- if pY > 1200 and cheat == false then
+    --     killed = true
+    -- end
     
     UpdateLightWorld()
 end
@@ -453,7 +422,7 @@ function BeginContact(fixtureA, fixtureB, contact)
     end
 
     -- Check if the player collides with an offCrystal and handle accordingly
-    if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" then
+    if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" and brightLevel then
         local light = lightCrystal[fixtureA:getUserData().index]
         -- Get the position of the crystal and create a light source
         xCrystal, yCrystal = crystals[fixtureA:getUserData().index].body:getPosition()
@@ -549,5 +518,26 @@ function drawFinish()
     end
 end
 
+-- Function to check the distance between enemies and a crystal
+function checkEnemyDistanceToCrystal(crystalX, crystalY)
+    -- Create a vector representing the position of the crystal
+    local crystalPosition = vector2.new(crystalX, crystalY)
 
+    -- Iterate through each enemy in the 'enemies' table
+    for _, enemy in ipairs(enemies) do
+        -- Get the position of the current enemy
+        local enemyPosition = vector2.new(enemy.body:getX(), enemy.body:getY())
 
+        -- Calculate the vector between the crystal and the enemy
+        local distanceVector = vector2.sub(crystalPosition, enemyPosition)
+
+        -- Calculate the distance between the crystal and the enemy
+        local distance = vector2.magnitude(distanceVector)
+
+        -- Check if the distance is within a certain range (20000 units in this case)
+        if distance <= 2500 then
+            -- Mark the enemy as killed
+            enemy.killed = true
+        end
+    end
+end
