@@ -16,9 +16,9 @@ local player
 local ground = {}
 local playerX, playerY
 local killed = false
-local object = "idk"
-local jumpCount = 0
-local released = true
+--local object = "idk"
+local canJump = false
+--local released = true
 local cheat = false
 local cam
 local enemies = {}
@@ -44,6 +44,7 @@ local boostTimer = 0
 local isBoostActive = false
 local finishs= {}
 local success = false
+local sound = {}
 
 -- load 
 function love.load()
@@ -59,7 +60,7 @@ function love.load()
 
     -- Set up physics world using Box2D
     love.physics.setMeter(64)
-    world = love.physics.newWorld(0, 15 * 64, true)
+    world = love.physics.newWorld(0, 9.8 * love.physics.getMeter(), true)
     world:setCallbacks(BeginContact, EndContact, nil, nil)
 
     -- Initialize Box2D physics for the map
@@ -76,6 +77,12 @@ function love.load()
     cam = {}
     cam.x = 0
     cam.y = 0
+
+
+    sound.jump = love.audio.newSource("sounds/JumpSound_01.mp3", "static")
+    sound.walking = love.audio.newSource("sounds/waklingSound_01.mp3", "static")
+    sound.crystalDing = love.audio.newSource("sounds/crystalDing_01.mp3", "static")
+
 
     -- Create player and load various game elements
     player = CreatePlayer(world)
@@ -108,7 +115,7 @@ function love.update(dt)
     camera:follow(pX - 900, pY - 800)
 
     -- Set camera follow style to 'PLATFORMER'
-    camera.follow_style = 'PLATFORMER'
+    --camera.follow_style = 'PLATFORMER'
 
     -- Update the map
     map:update(dt)
@@ -121,13 +128,13 @@ function love.update(dt)
     end
 
     -- Update the player's position and handle collisions with ground and walls
-    UpdatePlayer(dt, ground, wall)
-
-    -- Update the light position for the player
-    local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
-    updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
+    UpdatePlayer(dt, sound, canJump)
 
     if brightLevel then
+        -- Update the light position for the player
+        local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
+        updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
+
         -- Iterate through crystals, update their light positions, and check enemy distance to crystals
         for i = 1, #crystals, 1 do
             local xCrystal, yCrystal = crystals[i].body:getPosition()
@@ -254,45 +261,49 @@ function successScreen()
     love.graphics.print("You won!", middleX, middleY)
 end
 
--- Function called when a key is released
-function love.keyreleased(key)
-    -- Check if the released key is the spacebar
-    if key == "space" then
-        -- Set a variable 'released' to true
-        released = true
-    end
-end
+-- -- Function called when a key is released
+-- function love.keyreleased(key)
+--     -- Check if the released key is the spacebar
+--     if key == "space" then
+--         -- Set a variable 'released' to true
+--         released = true
+--     end
+-- end
 
 
 
 function love.keypressed(key)
     -- Check if the space key is pressed and certain conditions are met
-    if key == "space" and cheat == false and wallJump == false then
+    if key == "space" and cheat == false and wallJump == false and canJump then
         -- Check jump conditions and apply linear impulse if allowed
-        if jumpCount == 0 and canJump and released then
-            jumpCount = jumpCount + 1
+        --and canJump  and released
+        --if   then
+            canJump = false
             local jumpForce = vector2.new(0, -jumpf)
             player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
             player.onground = false
-            released = false
-    
+            --released = false
+            
             -- Limit the maximum velocity after applying the jump impulse
             local maxVelocityX = 500 
             local maxVelocityY = 800 
             local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
-    
+            
             -- Limiting the velocity in the x-direction
             if math.abs(currentVelocityX) > maxVelocityX and isBoostActive == false then
                 player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
             end
-        end
+            sound.jump:play()
+
+        --end
     end
 
     -- Check if the space key is pressed, cheats are disabled, and wallJump is enabled
     --The wall jump has a max velocity, so the player does not abuse wall jumping 
     if key == "space" and cheat == false and wallJump then
         -- Check jump conditions and apply wall jump forces
-        if canJump and released then
+        --canJump and
+        --if  released then
             local jumpForceY = -walljumpf
             local jumpForceX = 0
 
@@ -320,9 +331,11 @@ function love.keypressed(key)
                 player.body:setLinearVelocity(currentVelocityX, maxVelocityY * math.sign(currentVelocityY))
             end
 
-            canJump = true
-            released = false
-        end
+            --canJump = true
+            --released = false
+
+            sound.jump:play()
+        --end
     end
 
     -----------------------------------------------------------------------------------------------------
@@ -342,7 +355,9 @@ function love.keypressed(key)
     -- If cheats are enabled, apply a cheat jump when the space key is pressed
     if key == "space" and cheat then
         local jumpForce = vector2.new(0, -cheatF)
+        canJump = false
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
+        sound.jump:play()
     end
 
     -- Toggle the brightLevel variable when the 'b' key is pressed
@@ -416,7 +431,6 @@ function BeginContact(fixtureA, fixtureB, contact)
             player.onground = true
             wallJump = false
             canJump = true
-            jumpCount = 0
             canWallJump = true
         end
     end
@@ -434,23 +448,24 @@ function BeginContact(fixtureA, fixtureB, contact)
 
         -- Change the type of the crystal to "onCrystal"
         fixtureA:getUserData().type = "onCrystal"
+
+        sound.crystalDing:play()
     end
 
-    -- Check if the player collides with a wall and handle accordingly
-    if fixtureA:getUserData().type == "boost" and fixtureB:getUserData().type == "player" then
-        local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
-        -- Enable boost
-        isBoostActive = true
-        boostTimer = boostDuration
+    -- -- Check if the player collides with a wall and handle accordingly
+    -- if fixtureA:getUserData().type == "boost" and fixtureB:getUserData().type == "player" then
+    --     local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
+    --     -- Enable boost
+    --     isBoostActive = true
+    --     boostTimer = boostDuration
     
-        -- Set the player's maximum velocity to boostMaxVelocity
-        player.body:setLinearVelocity(boostMaxVelocity * math.sign(currentVelocityX), currentVelocityY)
-        player.onground = true
-        wallJump = false
-        canJump = true
-        jumpCount = 0
-        canWallJump = true
-    end
+    --     -- Set the player's maximum velocity to boostMaxVelocity
+    --     player.body:setLinearVelocity(boostMaxVelocity * math.sign(currentVelocityX), currentVelocityY)
+    --     player.onground = true
+    --     wallJump = false
+    --     canJump = true
+    --     canWallJump = true
+    -- end
 
 end
 

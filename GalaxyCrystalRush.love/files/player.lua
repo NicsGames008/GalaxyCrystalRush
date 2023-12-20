@@ -22,29 +22,37 @@ function CreatePlayer(world)
 end
 
 -- Function to update the player's position and state
-function UpdatePlayer(dt, ground, wall)
+function UpdatePlayer(dt, sound, canJump)
     -- Apply forces based on keyboard input for horizontal movement
-    if love.keyboard.isDown("left") then
+    if love.keyboard.isDown("left") then    
         player.body:applyForce(-player.speed, 0)
+        if canJump then
+            sound.walking:play()
+        end
+        print(canJump)
     elseif love.keyboard.isDown("right") then
         player.body:applyForce(player.speed, 0)
+        if canJump then            
+            sound.walking:play()
+        end
+        print( canJump)
     end
 
-    -- Check for ground contact and update player state accordingly
-    if player.body:isTouching(ground.body) and released then
-        object = "ground"
-        canJump = true
-        jumpCount = 0
-        canWallJump = true
-    end
+    -- -- Check for ground contact and update player state accordingly
+    -- if player.body:isTouching(ground.body) and released then
+    --     object = "ground"
+    --     canJump = true
+    --     canJump = 0
+    --     canWallJump = true
+    -- end
 
-    -- Check for wall contact and update player state accordingly
-    if player.body:isTouching(wall.body) and released then
-        object = "wall"
-        canJump = true
-        jumpCount = 0
-        canWallJump = true
-    end
+    -- -- Check for wall contact and update player state accordingly
+    -- if player.body:isTouching(wall.body) and released then
+    --     object = "wall"
+    --     canJump = true
+    --     canJump = 0
+    --     canWallJump = true
+    -- end
 end
 
 -- Function to draw the player on the screen
