@@ -2,12 +2,14 @@
     "Lua.diagnostics.disable": [
         "undefined-global",
         "duplicate-set-field",
-        "lowercase-global"
+        "lowercase-global",
+        "deprecated"
     ],
     "Lua.diagnostics.globals": [
         "crystals",
         "lightCrystal",
         "crystalOn",
         "lightPlayer"
-    ]
+    ],
+    "pixelbyte.love2d.srcDir": ""
 }

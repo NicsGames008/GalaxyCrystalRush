@@ -4,7 +4,7 @@ require "files/vector2"
 local player
 
 -- Function to create a player object in the game world
-function CreatePlayer(world)
+function CreatePlayer(world, anim8)
     -- Create a new player object 
     player = {}
 
@@ -16,6 +16,12 @@ function CreatePlayer(world)
     player.speed = 2000
     player.jumpForce = -400
     player.fixture:setUserData(({object = player,type = "player", index = i})) 
+    player.spriteSheet = love.graphics.newImage("sprites/Sprite-0001-Sheet.png")
+    print(player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
+    player.gird = anim8.newGrid( 64, 64, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
+
+    player.animations = {}
+    player.animations.idle = anim8.newAnimation(player.gird('1-7', 1), 0.2)
 
     -- Return the created player object
     return player
@@ -29,13 +35,11 @@ function UpdatePlayer(dt, sound, canJump)
         if canJump then
             sound.walking:play()
         end
-        print(canJump)
     elseif love.keyboard.isDown("right") then
         player.body:applyForce(player.speed, 0)
         if canJump then            
             sound.walking:play()
         end
-        print( canJump)
     end
 
     -- -- Check for ground contact and update player state accordingly
@@ -57,6 +61,7 @@ end
 
 -- Function to draw the player on the screen
 function drawPlayer(x, y)
-    love.graphics.setColor(1, 0, 0)
-    love.graphics.circle("fill", player.body:getX(), player.body:getY(), player.shape:getRadius())
+    --love.graphics.setColor(1, 0, 0)
+    --love.graphics.circle("fill", player.body:getX(), player.body:getY(), player.shape:getRadius())
+    player.animations.idle:draw(player.spriteSheet, player.body:getX()-100, player.body:getY()-140, nil, 3)
 end

@@ -1,5 +1,12 @@
 require "files/vector2"
 
+local ground
+local wall
+local spike
+local void
+local enemyBarrier
+local barrier
+
 
 -- Draw the layers from tiled
 function DrawLevel(map)
@@ -13,7 +20,7 @@ function DrawLevel(map)
 end
 
 -- Load ground layer
-function loadGround(world, grounds, ground)
+function loadGround(world, grounds)
     if map.layers['Ground'] then
 
         for i, obj in pairs(map.layers['Ground'].objects) do
@@ -31,7 +38,7 @@ function loadGround(world, grounds, ground)
             end
             
         end
-        return grounds, ground
+        return grounds
     end
 
     
@@ -40,7 +47,7 @@ end
 -- Load wall layer
 
 
-function loadWalls(world, walls, wall)
+function loadWalls(world, walls)
     if map.layers['Wall'] then
 
         for i, obj in pairs(map.layers['Wall'].objects) do
@@ -88,13 +95,13 @@ function loadWalls(world, walls, wall)
             end
             
         end
-        return walls, wall
+        return walls
     end
 end
 
 -- Load spike layer
 
-function loadSpikes(world, spikes, spike)
+function loadSpikes(world, spikes)
     if map.layers['Spikes'] then
 
         for i, obj in pairs(map.layers['Spikes'].objects) do
@@ -115,13 +122,13 @@ function loadSpikes(world, spikes, spike)
          
         end
         
-        return spikes, spike
+        return spikes
     end
 end
 
 -- Load void layer
 
-function loadVoids( world, voids, void)
+function loadVoids( world, voids)
     if map.layers['Portal'] then
 
         for i, obj in pairs(map.layers['Portal'].objects) do
@@ -146,7 +153,7 @@ end
 -- Load barrier layer
 
 
-function loadBarriers(world, enemyBarriers, enemyBarrier, barriers, barrier)
+function loadBarriers(world, enemyBarriers, barriers)
     if map.layers['Enemy barriers'] then
 
         for i, obj in pairs(map.layers['Enemy barriers'].objects) do
@@ -191,7 +198,7 @@ function loadBarriers(world, enemyBarriers, enemyBarrier, barriers, barrier)
             end
         end
     end
-    return enemyBarriers, enemyBarrier, barriers, barrier
+    return enemyBarriers, barriers
 end
 
 

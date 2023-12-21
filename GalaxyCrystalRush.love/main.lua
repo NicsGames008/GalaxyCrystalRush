@@ -1,5 +1,6 @@
 local sti = require"libraries/sti"
 local Camera = require "files/Camera"
+local anim8 = require("libraries.anim8")
 require"files/enemy"
 require"files/player"
 require"files/level"
@@ -49,8 +50,9 @@ local sound = {}
 -- load 
 function love.load()
     -- Set up window properties
-    love.window.setMode(1080, 900)
+    --love.window.setMode(1080, 900)
     love.window.setFullscreen(true)
+    love.graphics.setDefaultFilter("nearest", "nearest")
 
     -- Initialize camera with default parameters
     camera = Camera(0, 0, 0, 0, 0.5)
@@ -70,27 +72,27 @@ function love.load()
     map:addCustomLayer("Sprite Layer", 3)
 
     -- Initialize and define functions for a custom sprite layer
-    local spriteLayer = map.layers["Sprite Layer"]
-    spriteLayer.sprites = {}
+    -- local spriteLayer = map.layers["Sprite Layer"]
+    -- spriteLayer.sprites = {}
 
     -- Set up camera coordinates
     cam = {}
     cam.x = 0
     cam.y = 0
 
-
     sound.jump = love.audio.newSource("sounds/JumpSound_01.mp3", "static")
     sound.walking = love.audio.newSource("sounds/waklingSound_01.mp3", "static")
     sound.crystalDing = love.audio.newSource("sounds/crystalDing_01.mp3", "static")
 
 
+
     -- Create player and load various game elements
-    player = CreatePlayer(world)
-    grounds, ground = loadGround(world, grounds, ground)
-    walls, wall = loadWalls(world, walls, wall)
-    spikes, spike = loadSpikes(world, spikes, spike)
-    voids, void = loadVoids(world, voids, void)
-    enemyBarriers, enemyBarrier, barriers, barrier = loadBarriers(world, enemyBarriers, enemyBarrier, barriers, barrier)
+    player = CreatePlayer(world, anim8)
+    grounds = loadGround(world, grounds)
+    walls = loadWalls(world, walls)
+    spikes = loadSpikes(world, spikes)
+    voids = loadVoids(world, voids)
+    enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
     crystals, lightCrystal = loadCrystals(world, crystals,  lightCrystal)
     enemies = loadEnemies(world, enemies)
     createBoostPlatform()
@@ -148,7 +150,7 @@ function love.update(dt)
         end
     end
 
-    -- Remove killed enemies from the table and destroy their bodies
+    --Remove killed enemies from the table and destroy their bodies
     for i, enemy in ipairs(enemies) do
         if enemy.killed then
             table.remove(enemies, i)
@@ -156,6 +158,7 @@ function love.update(dt)
         end
     end
 
+    player.animations.idle:update(dt)
 
     -- local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
     -- --run boost timer
@@ -181,7 +184,6 @@ function love.update(dt)
 end
 
 --draw
-
 function love.draw()
     -- Check if the player is killed
     if killed then
@@ -230,7 +232,6 @@ function love.draw()
         -- Draw the camera view
         camera:draw()
     end
-
 end
 
 -- Function to display the "Game Over" screen
@@ -278,22 +279,23 @@ function love.keypressed(key)
         -- Check jump conditions and apply linear impulse if allowed
         --and canJump  and released
         --if   then
-            canJump = false
-            local jumpForce = vector2.new(0, -jumpf)
-            player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
-            player.onground = false
-            --released = false
-            
-            -- Limit the maximum velocity after applying the jump impulse
-            local maxVelocityX = 500 
-            local maxVelocityY = 800 
-            local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
-            
-            -- Limiting the velocity in the x-direction
-            if math.abs(currentVelocityX) > maxVelocityX and isBoostActive == false then
-                player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
-            end
-            sound.jump:play()
+        local jumpForce = vector2.new(0, -jumpf)
+        player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
+        player.onground = false
+        --released = false
+        
+        -- Limit the maximum velocity after applying the jump impulse
+        local maxVelocityX = 500 
+        local maxVelocityY = 800 
+        local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
+        
+        -- Limiting the velocity in the x-direction
+        if math.abs(currentVelocityX) > maxVelocityX and isBoostActive == false then
+            player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
+        end
+
+        canJump = false
+        sound.jump:play()
 
         --end
     end
@@ -331,7 +333,7 @@ function love.keypressed(key)
                 player.body:setLinearVelocity(currentVelocityX, maxVelocityY * math.sign(currentVelocityY))
             end
 
-            --canJump = true
+            canJump = false
             --released = false
 
             sound.jump:play()
@@ -365,10 +367,10 @@ function love.keypressed(key)
         brightLevel = not brightLevel
     end
 
-    -- Print the player's position when the 'z' key is pressed
-    if key == "z" then
-        print(player.body:getPosition())
-    end
+    -- -- Print the player's position when the 'z' key is pressed
+    -- if key == "z" then
+    --     print(player.body:getPosition())
+    -- end
     ------------------------------------------------------------------------------------------------------------------------
 
 end
