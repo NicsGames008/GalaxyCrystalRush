@@ -125,7 +125,7 @@ function love.update(dt)
     -- Iterate through enemies and update their movement if they are not killed
     for i, enemy in ipairs(enemies) do
         if not enemy.killed then
-            enemyMove(dt, enemies, enemy, enemyBarriers)
+            enemyMove(dt, enemies, enemyBarriers)
         end
     end
 
