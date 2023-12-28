@@ -1,30 +1,27 @@
 require"/files/button"
-function newButton(text,fn)
-    return {
-        text = text,
-        fn = fn,
-
-        now = false,
-        last=false
-    }
-end
 
 local BUTTON_HEIGHT = 64
 
 
 local buttons = {}
 local font = nil
+local STATE_GAMEPLAY = 1
+local STATE_MAIN_MENU = 0
+local state = STATE_MAIN_MENU
 
 
 function loadMainMenu()
 font = love.graphics.newFont(32)
 table.insert(buttons, newButton("Start Game", startGame))
 table.insert(buttons, newButton("Exit", exit))
+table.insert(buttons, newButton("Resume", resume))
+table.insert(buttons, newButton("Main Menu", menu))
 
 end
 
 
-function love.update(dt)
+function updateState()
+    return state     
 end
 
 function drawMainMenu()
@@ -46,7 +43,7 @@ function drawMainMenu()
         end
         button.now = love.mouse.isDown(1)
         if button.now and not button.last and hot then
-        button.fn()
+         button.fn()
         end
         love.graphics.setColor(unpack(color))
         love.graphics.rectangle("fill", bx,by, button_width, BUTTON_HEIGHT)
@@ -61,9 +58,21 @@ end
 
 
 function startGame()
+    state = STATE_GAMEPLAY
 
 end
 
 function exit()
-
+    love.event.quit()
 end
+
+
+
+function resume()
+    state = STATE_GAMEPLAY
+ 
+ end
+ 
+ function menu()
+     state = STATE_MAIN_MENU
+ end
