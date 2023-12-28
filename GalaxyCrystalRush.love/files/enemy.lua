@@ -44,7 +44,7 @@ function drawEnemies(enemies)
            -- love.graphics.polygon("fill", enemy.body:getWorldPoints(enemy.shape:getPoints()))
             --love.graphics.draw(enemy.sprite, enemy.body:getX() +120, enemy.body:getY() +90, enemy.body:getAngle() , 1, 1, enemy.sprite:getWidth(), enemy.sprite :getHeight())
             
-            enemy.anim:draw(enemy.spriteSheet, enemy.body:getX(), enemy.body:getY(), nil, 3, 3, 30, 30)
+            enemy.anim:draw(enemy.spriteSheet, enemy.body:getX(), enemy.body:getY(), nil, 3, 3, 30, 32)
         end
     end
 end

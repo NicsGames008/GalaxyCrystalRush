@@ -1,5 +1,5 @@
 local sti = require"libraries/sti"
-local Camera = require "files/Camera"
+local Camera = require "libraries/Camera"
 local anim8 = require("libraries.anim8")
 require"files/enemy"
 require"files/player"

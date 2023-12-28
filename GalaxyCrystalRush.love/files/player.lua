@@ -18,9 +18,12 @@ function CreatePlayer(world, anim8)
     player.fixture:setUserData(({object = player,type = "player", index = i})) 
     player.spriteSheet = love.graphics.newImage("sprites/Sprite-0001-Sheet.png")
     player.gird = anim8.newGrid( 64, 64, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
-
+    
     player.animations = {}
     player.animations.idle = anim8.newAnimation(player.gird('1-7', 1), 0.2)
+
+    
+    player.anim = player.animations.idle
 
     -- Return the created player object
     return player
@@ -41,7 +44,7 @@ function UpdatePlayer(dt, sound, canJump)
         end
     end
     
-    player.animations.idle:update(dt)
+    player.anim:update(dt)
     -- -- Check for ground contact and update player state accordingly
     -- if player.body:isTouching(ground.body) and released then
     --     object = "ground"
@@ -63,5 +66,5 @@ end
 function drawPlayer(x, y)
     --love.graphics.setColor(1, 0, 0)
     --love.graphics.circle("fill", player.body:getX(), player.body:getY(), player.shape:getRadius())
-    player.animations.idle:draw(player.spriteSheet, player.body:getX(), player.body:getY(), nil, 3, 3, 30,45)
+    player.anim:draw(player.spriteSheet, player.body:getX(), player.body:getY(), nil, 3, 3, 30,45)
 end
