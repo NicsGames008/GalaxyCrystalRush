@@ -62,7 +62,7 @@ function love.load()
 
     -- Set up physics world using Box2D
     love.physics.setMeter(64)
-    world = love.physics.newWorld(0, 9.8 * love.physics.getMeter(), true)
+    world = love.physics.newWorld(0, 15 * love.physics.getMeter(), true)
     world:setCallbacks(BeginContact, EndContact, nil, nil)
 
     -- Initialize Box2D physics for the map
@@ -94,7 +94,7 @@ function love.load()
     voids = loadVoids(world, voids)
     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
     crystals, lightCrystal = loadCrystals(world, crystals,  lightCrystal)
-    enemies = loadEnemies(world, enemies)
+    enemies = loadEnemies(world, enemies, anim8)
     createBoostPlatform()
     createFinish()
 
@@ -158,7 +158,6 @@ function love.update(dt)
         end
     end
 
-    player.animations.idle:update(dt)
 
     -- local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
     -- --run boost timer

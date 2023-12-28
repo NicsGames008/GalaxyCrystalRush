@@ -2,7 +2,9 @@ require "files/vector2"
 
 -- Load enemy layer
 
-function loadEnemies(world, enemies)
+local enemy
+
+function loadEnemies(world, enemies, anim8)
     if map.layers['Enemies'] then
 
         for i, obj in pairs(map.layers['Enemies'].objects) do
@@ -17,9 +19,16 @@ function loadEnemies(world, enemies)
                 enemy.fixture = love.physics.newFixture(enemy.body, enemy.shape, 1)
                 enemy.fixture:setSensor(true)
                 enemy.fixture:setUserData(({object = enemy,type = "enemy", index = i,x = obj.x + obj.width / 2 ,obj.y + obj.height / 2  }))
-                enemy.killed = false
+                enemy.killed = false        
 
+                enemy.spriteSheet = love.graphics.newImage("sprites/EnemyShpiteSheet.png")
+                enemy.gird = anim8.newGrid( 64, 64, enemy.spriteSheet:getWidth(), enemy.spriteSheet:getHeight())
+                
+                enemy.animations = {}
+                enemy.animations.walkRight = anim8.newAnimation(enemy.gird('1-2', 1), 2)
+                enemy.animations.walkLeft = anim8.newAnimation(enemy.gird('1-2', 2), 2)
 
+                enemy.anim = enemy.animations.walkRight
                 table.insert(enemies, enemy)
             end
 
@@ -33,7 +42,9 @@ function drawEnemies(enemies)
     for _, enemy in ipairs(enemies) do
         if not enemy.killed then
            -- love.graphics.polygon("fill", enemy.body:getWorldPoints(enemy.shape:getPoints()))
-            love.graphics.draw(enemy.sprite, enemy.body:getX() +120, enemy.body:getY() +90, enemy.body:getAngle() , 1, 1, enemy.sprite:getWidth(), enemy.sprite :getHeight())
+            --love.graphics.draw(enemy.sprite, enemy.body:getX() +120, enemy.body:getY() +90, enemy.body:getAngle() , 1, 1, enemy.sprite:getWidth(), enemy.sprite :getHeight())
+            
+            enemy.anim:draw(enemy.spriteSheet, enemy.body:getX(), enemy.body:getY(), nil, 3, 3, 30, 30)
         end
     end
 end
@@ -67,6 +78,14 @@ function enemyMove(dt, enemies, enemyBarriers)
             else
                 enemy.speed = -enemy.speed
             end
+
+            if enemy.speed < 0 then
+                enemy.anim = enemy.animations.walkLeft
+            else
+                enemy.anim = enemy.animations.walkRight
+            end
+
+            enemy.anim:update(dt)
         end
     end
 end
