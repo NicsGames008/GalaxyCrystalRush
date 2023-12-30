@@ -32,17 +32,22 @@ end
 -- Function to update the player's position and state
 function UpdatePlayer(dt, sound, canJump)
     -- Apply forces based on keyboard input for horizontal movement
-    if love.keyboard.isDown("left") then    
-        player.body:applyForce(-player.speed, 0)
-        if canJump then
+    local forceMultiplier = 25  -- Adjust this value to control how quickly the player stops
+    
+    -- Check if the player is on the ground before applying forces
+
+        if love.keyboard.isDown("left") then    
+            player.body:applyForce(-player.speed, 0)
             sound.walking:play()
-        end
-    elseif love.keyboard.isDown("right") then
-        player.body:applyForce(player.speed, 0)
-        if canJump then            
+        elseif love.keyboard.isDown("right") then
+            player.body:applyForce(player.speed, 0)
             sound.walking:play()
+        elseif player.onground then
+            local vx, vy = player.body:getLinearVelocity()
+            player.body:applyForce(-vx * forceMultiplier, -vy * forceMultiplier)
         end
-    end
+
+    
     
     player.anim:update(dt)
     -- -- Check for ground contact and update player state accordingly
