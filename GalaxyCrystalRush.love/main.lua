@@ -14,6 +14,11 @@ local STATE_KILLED = 3
 local STATE_WIN = 4
 local state
 
+
+local text = "start"
+
+
+
 local world
 local player
 local ground = {}
@@ -58,6 +63,7 @@ local LightWorld = require("libraries/shadows.LightWorld")
 -- load 
 function love.load()
     state = STATE_MAIN_MENU
+
     loadMainMenu()
     loadGame()
 
@@ -90,10 +96,7 @@ end
 -- update
 
 function love.update(dt)
-    state = updateState()
-
-    if state == STATE_MAIN_MENU then
-    end
+    state = updateState(state)
     if state == STATE_GAMEPLAY then 
     -- Update physics world and camera
     world:update(dt)
@@ -180,6 +183,9 @@ function love.draw()
     if state == STATE_MAIN_MENU then
         drawMainMenu()
     end
+    if state == STATE_PAUSE then
+        drawPauseMenu()
+    end
     if state == STATE_GAMEPLAY then
 
         love.graphics.print("test",0,0)
@@ -234,7 +240,8 @@ function love.draw()
     
 
 end
-
+love.graphics.setColor(1,0,0)
+    love.graphics.print(text,0,0)
 end
 
 -- Function to display the "Game Over" screen
@@ -375,8 +382,8 @@ function love.keypressed(key)
     end
 
     if key == "escape" then 
-        state = STATE_MAIN_MENU
-        loadMainMenu()
+        state = STATE_PAUSE
+        text = tostring(state)
 
     end 
     ------------------------------------------------------------------------------------------------------------------------
