@@ -14,7 +14,7 @@ local STATE_WIN = 4
 
 local world
 local player
-local ground = {}
+--local ground = {}
 local playerX, playerY
 local killed = false
 --local object = "idk"
@@ -27,25 +27,27 @@ local grounds = {}
 local walls = {}
 local spikes = {}
 local voids = {}
+local barriers ={}
+local crystals = {}
 local wallJump = false
 local brightLevel = true
 local text = "false"
 local lightPlayer
 local lightCrystal = {}
-local barriers ={}
-local crystals = {}
 local enemyBarriers =  {}
 local jumpf = 1500
 local cheatF = 1000
 local walljumpf = 1500
-local boosts = {}
-local boostDuration = 3 
-local boostMaxVelocity = 1000
-local boostTimer = 0
-local isBoostActive = false
+--local boosts = {}
+-- local boostDuration = 3 
+-- local boostMaxVelocity = 1000
+-- local boostTimer = 0
+-- local isBoostActive = false
 local finishs= {}
 local success = false
 local sound = {}
+local onCrystalpercentage = 0
+local onCrystalCount = 0
 
 -- load 
 function love.load()
@@ -84,8 +86,6 @@ function love.load()
     sound.walking = love.audio.newSource("sounds/waklingSound_01.mp3", "static")
     sound.crystalDing = love.audio.newSource("sounds/crystalDing_01.mp3", "static")
 
-
-
     -- Create player and load various game elements
     player = CreatePlayer(world, anim8)
     grounds = loadGround(world, grounds)
@@ -95,7 +95,7 @@ function love.load()
     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
     crystals, lightCrystal = loadCrystals(world, crystals,  lightCrystal)
     enemies = loadEnemies(world, enemies, anim8)
-    createBoostPlatform()
+    --createBoostPlatform()
     createFinish()
 
 
@@ -159,6 +159,7 @@ function love.update(dt)
     end
 
 
+    UpdateLightWorld()
     -- local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
     -- --run boost timer
     -- if isBoostActive and cheat == false then
@@ -179,7 +180,6 @@ function love.update(dt)
     --     killed = true
     -- end
     
-    UpdateLightWorld()
 end
 
 --draw
@@ -228,8 +228,31 @@ function love.draw()
         -- Release the camera view
         camera:detach()
 
+        love.graphics.setColor(1, 1, 1)
+        local crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames1.png")
+        if onCrystalpercentage >= 10 and onCrystalpercentage < 19 then
+            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames2.png")
+        elseif onCrystalpercentage >= 20 and onCrystalpercentage < 29 then
+            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames3.png")   
+        elseif onCrystalpercentage >= 30 and onCrystalpercentage < 39 then
+            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames4.png")            
+        elseif onCrystalpercentage >= 40 and onCrystalpercentage < 49 then
+            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames5.png")            
+        elseif onCrystalpercentage >= 50 and onCrystalpercentage < 59 then
+            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames6.png")            
+        elseif onCrystalpercentage >= 60 and onCrystalpercentage < 69 then
+            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames7.png")            
+        elseif onCrystalpercentage >= 70 and onCrystalpercentage < 74 then
+            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames8.png")            
+        elseif onCrystalpercentage >= 75 and onCrystalpercentage < 93 then
+            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames9.png")
+        elseif onCrystalpercentage >= 100 and onCrystalpercentage < 1000 then
+            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames10.png")
+        end
+        love.graphics.draw(crystalImg, 1750, 15, nil, 2.5, 2.5)
+        
         -- Draw the camera view
-        camera:draw()
+        --camera:draw()
     end
 end
 
@@ -283,15 +306,15 @@ function love.keypressed(key)
         player.onground = false
         --released = false
         
-        -- Limit the maximum velocity after applying the jump impulse
-        local maxVelocityX = 500 
-        local maxVelocityY = 800 
-        local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
+        -- -- Limit the maximum velocity after applying the jump impulse
+        -- local maxVelocityX = 500 
+        -- local maxVelocityY = 800 
+        -- local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
         
-        -- Limiting the velocity in the x-direction
-        if math.abs(currentVelocityX) > maxVelocityX and isBoostActive == false then
-            player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
-        end
+        -- -- Limiting the velocity in the x-direction
+        -- if math.abs(currentVelocityX) > maxVelocityX and isBoostActive == false then
+        --     player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
+        -- end
 
         canJump = false
         sound.jump:play()
@@ -357,6 +380,7 @@ function love.keypressed(key)
     if key == "space" and cheat then
         local jumpForce = vector2.new(0, -cheatF)
         canJump = false
+        player.onground = false
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
         sound.jump:play()
     end
@@ -377,7 +401,6 @@ end
 -- All of our Collision logic
 
 function BeginContact(fixtureA, fixtureB, contact)
-
     -- Check if the player collides with a spike and handle accordingly
     if fixtureA:getUserData().type == "spike" and fixtureB:getUserData().type == "player" then
         -- Check if cheats are disabled
@@ -438,17 +461,22 @@ function BeginContact(fixtureA, fixtureB, contact)
 
     -- Check if the player collides with an offCrystal and handle accordingly
     if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" and brightLevel then
+
         local light = lightCrystal[fixtureA:getUserData().index]
+        light:Remove()
+
         -- Get the position of the crystal and create a light source
         xCrystal, yCrystal = crystals[fixtureA:getUserData().index].body:getPosition()
-        light:Remove()
         lightCrystal[fixtureA:getUserData().index] = loadLight(2000, xCrystal, yCrystal)
-
-        -- Recalculate the light world
-	    UpdateLightWorld()
 
         -- Change the type of the crystal to "onCrystal"
         fixtureA:getUserData().type = "onCrystal"
+
+        onCrystalCount = onCrystalCount + 1
+
+        onCrystalpercentage = math.floor((onCrystalCount / #lightCrystal)*100)
+
+        print(onCrystalpercentage)
 
         sound.crystalDing:play()
     end
