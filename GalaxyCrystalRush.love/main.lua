@@ -62,7 +62,7 @@ function love.load()
 
     -- Set up physics world using Box2D
     love.physics.setMeter(64)
-    world = love.physics.newWorld(0, 15 * love.physics.getMeter(), true)
+    world = love.physics.newWorld(0, 20 * love.physics.getMeter(), true)
     world:setCallbacks(BeginContact, EndContact, nil, nil)
 
     -- Initialize Box2D physics for the map
@@ -289,9 +289,7 @@ function love.keypressed(key)
         local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
         
         -- Limiting the velocity in the x-direction
-        if math.abs(currentVelocityX) > maxVelocityX and isBoostActive == false then
-            player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
-        end
+        
 
         canJump = false
         sound.jump:play()
@@ -480,7 +478,11 @@ function EndContact(fixtureA, fixtureB, contact)
         -- Reset the wallJump variable
         wallJump = false
     end
+    if fixtureA:getUserData().type == "ground" and fixtureB:getUserData().type == "player" then
+       player.onground = false
+    end
 end
+
 
  -- Helper function to get the sign of a number
 function math.sign(x)
