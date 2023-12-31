@@ -205,6 +205,7 @@ function love.keypressed(key)
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
         player.onground = false
         canJump = false
+        player.anim = player.animations.idle
         sound.jump:play()
     end
 
@@ -363,7 +364,6 @@ function EndContact(fixtureA, fixtureB, contact)
     if fixtureA:getUserData().type == "wall" and fixtureB:getUserData().type == "player" then
         -- Disable the ability to perform wall jumps
         canWallJump = false
-
         -- Reset the wallJump variable
         wallJump = false
     end
@@ -381,6 +381,7 @@ end
 function drawUI()
     love.graphics.setColor(1, 1, 1)
     local crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames1.png")
+
     if onCrystalpercentage >= 10 and onCrystalpercentage < 19 then
         crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames2.png")
     elseif onCrystalpercentage >= 20 and onCrystalpercentage < 29 then

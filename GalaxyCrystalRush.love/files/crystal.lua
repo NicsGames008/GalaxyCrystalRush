@@ -26,22 +26,3 @@ function loadCrystals(world, crystals,  lightCrystal)
         return crystals, lightCrystal
     end
 end
-
-    --draws all the crystal created
-
--- function DrawCrystal(crystal, crystalOn)
---     for i = 1, #crystal, 1 do
---         if crystal[i] then    
---             love.graphics.setColor(1,1,0)         
---             love.graphics.polygon("fill", crystal[i].body:getWorldPoints(  crystal[i].shape:getPoints()))
-
-            
---             if crystalOn == 1 then    
---                 local xCrystal, yCrystal = crystals[i].body:getPosition()
---                 love.graphics.setColor(1,1,1)         
---                 love.graphics.circle("fill", xCrystal, yCrystal, 400)
---             end
-
---         end
---     end 
--- end 

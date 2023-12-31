@@ -20,7 +20,10 @@ function CreatePlayer(world, anim8)
     player.gird = anim8.newGrid( 64, 64, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
     
     player.animations = {}
-    player.animations.idle = anim8.newAnimation(player.gird('1-7', 1), 0.2)
+    player.animations.idle = anim8.newAnimation(player.gird('1-7', 1), 0.09)
+    player.animations.walikingRight = anim8.newAnimation(player.gird('1-7', 2), 0.09)
+    player.animations.walikingLeft = anim8.newAnimation(player.gird('1-7', 3), 0.09)
+
 
     
     player.anim = player.animations.idle
@@ -39,19 +42,22 @@ function UpdatePlayer(dt, sound, canJump)
         if love.keyboard.isDown("left") then    
             player.body:applyForce(-player.speed, 0)
             if player.onground then                
+                player.anim = player.animations.walikingLeft
                 sound.walking:play()
             end
         elseif love.keyboard.isDown("right") then
             player.body:applyForce(player.speed, 0)
             if player.onground then                
+                player.anim = player.animations.walikingRight
                 sound.walking:play()
             end
         elseif player.onground then
+            player.anim = player.animations.idle    
             local vx, vy = player.body:getLinearVelocity()
             player.body:applyForce(-vx * forceMultiplier, -vy * forceMultiplier)
-        end
-
-    
+        else
+            player.anim = player.animations.idle
+        end    
     
     player.anim:update(dt)
 end
