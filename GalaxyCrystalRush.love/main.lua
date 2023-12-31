@@ -14,12 +14,9 @@ local STATE_WIN = 4
 
 local world
 local player
---local ground = {}
 local playerX, playerY
 local killed = false
---local object = "idk"
 local canJump = false
---local released = true
 local cheat = false
 local cam
 local enemies = {}
@@ -38,11 +35,6 @@ local enemyBarriers =  {}
 local jumpf = 1500
 local cheatF = 1000
 local walljumpf = 1500
---local boosts = {}
--- local boostDuration = 3 
--- local boostMaxVelocity = 1000
--- local boostTimer = 0
--- local isBoostActive = false
 local finishs= {}
 local success = false
 local sound = {}
@@ -52,7 +44,6 @@ local onCrystalCount = 0
 -- load 
 function love.load()
     -- Set up window properties
-    --love.window.setMode(1080, 900)
     love.window.setFullscreen(true)
     love.graphics.setDefaultFilter("nearest", "nearest")
 
@@ -73,10 +64,6 @@ function love.load()
     -- Add a custom layer for sprites to the map
     map:addCustomLayer("Sprite Layer", 3)
 
-    -- Initialize and define functions for a custom sprite layer
-    -- local spriteLayer = map.layers["Sprite Layer"]
-    -- spriteLayer.sprites = {}
-
     -- Set up camera coordinates
     cam = {}
     cam.x = 0
@@ -95,8 +82,7 @@ function love.load()
     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
     crystals, lightCrystal = loadCrystals(world, crystals,  lightCrystal)
     enemies = loadEnemies(world, enemies, anim8)
-    --createBoostPlatform()
-    createFinish()
+    finishs = createFinish(world, finishs)
 
 
     -- Get initial player position and set up light source
@@ -115,9 +101,6 @@ function love.update(dt)
     -- Get player position and adjust camera to follow player with an offset
     local pX, pY = player.body:getPosition()
     camera:follow(pX - 900, pY - 800)
-
-    -- Set camera follow style to 'PLATFORMER'
-    --camera.follow_style = 'PLATFORMER'
 
     -- Update the map
     map:update(dt)
@@ -158,28 +141,7 @@ function love.update(dt)
         end
     end
 
-
     UpdateLightWorld()
-    -- local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
-    -- --run boost timer
-    -- if isBoostActive and cheat == false then
-    --     -- Decrease the boost timer
-    --     boostTimer = boostTimer - dt
-
-    --     -- If the boost duration is over deactivate boost
-    --     if boostTimer <= 0 then
-    --         isBoostActive = false
-    --     end
-    -- end    
-    -- --regular max velocity
-    -- if isBoostActive == false and math.abs(currentVelocityX) > 700 and cheat == false then
-    --     player.body:setLinearVelocity(700 * math.sign(currentVelocityX), currentVelocityY)
-    -- end
-    -- --kill player if he falls out of map
-    -- if pY > 1200 and cheat == false then
-    --     killed = true
-    -- end
-    
 end
 
 --draw
@@ -216,7 +178,7 @@ function love.draw()
         --drawBoost()
 
         --draw the finsih line
-        drawFinish()
+        drawFinish(finishs)
 
         -- If brightLevel is true, draw the lighting effects
         if brightLevel then
@@ -228,140 +190,58 @@ function love.draw()
         -- Release the camera view
         camera:detach()
 
-        love.graphics.setColor(1, 1, 1)
-        local crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames1.png")
-        if onCrystalpercentage >= 10 and onCrystalpercentage < 19 then
-            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames2.png")
-        elseif onCrystalpercentage >= 20 and onCrystalpercentage < 29 then
-            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames3.png")   
-        elseif onCrystalpercentage >= 30 and onCrystalpercentage < 39 then
-            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames4.png")            
-        elseif onCrystalpercentage >= 40 and onCrystalpercentage < 49 then
-            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames5.png")            
-        elseif onCrystalpercentage >= 50 and onCrystalpercentage < 59 then
-            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames6.png")            
-        elseif onCrystalpercentage >= 60 and onCrystalpercentage < 69 then
-            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames7.png")            
-        elseif onCrystalpercentage >= 70 and onCrystalpercentage < 74 then
-            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames8.png")            
-        elseif onCrystalpercentage >= 75 and onCrystalpercentage < 93 then
-            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames9.png")
-        elseif onCrystalpercentage >= 100 and onCrystalpercentage < 1000 then
-            crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames10.png")
-        end
-        love.graphics.draw(crystalImg, 1750, 15, nil, 2.5, 2.5)
+        drawUI()
         
         -- Draw the camera view
         --camera:draw()
     end
 end
 
--- Function to display the "Game Over" screen
-function killedScreen()
-    -- Get the width and height of the screen
-    screenWidth = love.graphics.getWidth()
-    screenHeight = love.graphics.getHeight()
-
-    -- Calculate the middle position for text placement
-    middleX = screenWidth / 2 - 50
-    middleY = screenHeight / 2
-
-    -- Set the text color to white and display "Game Over!" at the calculated position
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Game over!", middleX, middleY)
-end
-function successScreen()
-    -- Get the width and height of the screen
-    screenWidth = love.graphics.getWidth()
-    screenHeight = love.graphics.getHeight()
-
-    -- Calculate the middle position for text placement
-    middleX = screenWidth / 2 - 50
-    middleY = screenHeight / 2
-
-    -- Set the text color to white and display "Game Over!" at the calculated position
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("You won!", middleX, middleY)
-end
-
--- -- Function called when a key is released
--- function love.keyreleased(key)
---     -- Check if the released key is the spacebar
---     if key == "space" then
---         -- Set a variable 'released' to true
---         released = true
---     end
--- end
-
-
-
 function love.keypressed(key)
     -- Check if the space key is pressed and certain conditions are met
     if key == "space" and cheat == false and wallJump == false and canJump then
         -- Check jump conditions and apply linear impulse if allowed
-        --and canJump  and released
-        --if   then
         local jumpForce = vector2.new(0, -jumpf)
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
         player.onground = false
-        --released = false
-        
-        -- -- Limit the maximum velocity after applying the jump impulse
-        -- local maxVelocityX = 500 
-        -- local maxVelocityY = 800 
-        -- local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
-        
-        -- -- Limiting the velocity in the x-direction
-        -- if math.abs(currentVelocityX) > maxVelocityX and isBoostActive == false then
-        --     player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
-        -- end
-        -- Limiting the velocity in the x-direction
-        
-
         canJump = false
         sound.jump:play()
-
-        --end
     end
 
     -- Check if the space key is pressed, cheats are disabled, and wallJump is enabled
     --The wall jump has a max velocity, so the player does not abuse wall jumping 
     if key == "space" and cheat == false and wallJump then
-        -- Check jump conditions and apply wall jump forces
-        --canJump and
-        --if  released then
-            local jumpForceY = -walljumpf
-            local jumpForceX = 0
+        local jumpForceY = -walljumpf
+        local jumpForceX = 0
 
-            -- Adjust horizontal jump force based on arrow key input
-            if love.keyboard.isDown("left") then
-                jumpForceX = 1000
-            elseif love.keyboard.isDown("right") then
-                jumpForceX = -1000
-            end
+        -- Adjust horizontal jump force based on arrow key input
+        if love.keyboard.isDown("left") then
+            jumpForceX = 1000
+        elseif love.keyboard.isDown("right") then
+            jumpForceX = -1000
+        end
 
-            player.body:applyLinearImpulse(jumpForceX, jumpForceY)
-            
-            -- Limit the maximum velocity after applying the wall jump impulse
-            local maxVelocityX = 800 
-            local maxVelocityY = 900 
-            local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
+        player.body:applyLinearImpulse(jumpForceX, jumpForceY)
+        
+        -- Limit the maximum velocity after applying the wall jump impulse
+        local maxVelocityX = 800 
+        local maxVelocityY = 900 
+        local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
 
-            -- Limiting the velocity in the x-direction
-            if math.abs(currentVelocityX) > maxVelocityX then
-                player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
-            end
+        -- Limiting the velocity in the x-direction
+        if math.abs(currentVelocityX) > maxVelocityX then
+            player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
+        end
 
-            -- Limiting the velocity in the y-direction
-            if math.abs(currentVelocityY) > maxVelocityY then
-                player.body:setLinearVelocity(currentVelocityX, maxVelocityY * math.sign(currentVelocityY))
-            end
+        -- Limiting the velocity in the y-direction
+        if math.abs(currentVelocityY) > maxVelocityY then
+            player.body:setLinearVelocity(currentVelocityX, maxVelocityY * math.sign(currentVelocityY))
+        end
 
-            canJump = false
-            --released = false
+        canJump = false
 
-            sound.jump:play()
-        --end
+        sound.jump:play()
+
     end
 
     -----------------------------------------------------------------------------------------------------
@@ -391,11 +271,6 @@ function love.keypressed(key)
     if key == "b" then
         brightLevel = not brightLevel
     end
-
-    -- -- Print the player's position when the 'z' key is pressed
-    -- if key == "z" then
-    --     print(player.body:getPosition())
-    -- end
     ------------------------------------------------------------------------------------------------------------------------
 
 end
@@ -478,26 +353,8 @@ function BeginContact(fixtureA, fixtureB, contact)
 
         onCrystalpercentage = math.floor((onCrystalCount / #lightCrystal)*100)
 
-        print(onCrystalpercentage)
-
         sound.crystalDing:play()
     end
-
-    -- -- Check if the player collides with a wall and handle accordingly
-    -- if fixtureA:getUserData().type == "boost" and fixtureB:getUserData().type == "player" then
-    --     local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
-    --     -- Enable boost
-    --     isBoostActive = true
-    --     boostTimer = boostDuration
-    
-    --     -- Set the player's maximum velocity to boostMaxVelocity
-    --     player.body:setLinearVelocity(boostMaxVelocity * math.sign(currentVelocityX), currentVelocityY)
-    --     player.onground = true
-    --     wallJump = false
-    --     canJump = true
-    --     canWallJump = true
-    -- end
-
 end
 
 -- functions called when a contact ends
@@ -521,51 +378,29 @@ function math.sign(x)
     return x > 0 and 1 or x < 0 and -1 or 0
 end
 
--- creates two boost platfrom s
-function createBoostPlatform()
-    boost = {}
-    boost2 = {}
-
-
-    boost.body = love.physics.newBody(world, 5890, -1520, "static")
-    boost.shape = love.physics.newRectangleShape(750,20)
-    boost.fixture = love.physics.newFixture(boost.body, boost.shape, 1)
-    boost.fixture:setUserData(({object = boost,type = "boost"}))
-    table.insert(boosts,boost)
-
-    boost2.body = love.physics.newBody(world, 7100, -1520, "static")
-    boost2.shape = love.physics.newRectangleShape(750,20)
-    boost2.fixture = love.physics.newFixture(boost2.body, boost2.shape, 1)
-    boost2.fixture:setUserData(({object = boost2,type = "boost"}))
-    table.insert(boosts,boost2)
-end
-
--- draws the boost platforms
-function drawBoost()
-    love.graphics.setColor(1,0,0)
-    for _, boost in ipairs(boosts) do
-           love.graphics.polygon("fill", boost.body:getWorldPoints(boost.shape:getPoints()))
+function drawUI()
+    love.graphics.setColor(1, 1, 1)
+    local crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames1.png")
+    if onCrystalpercentage >= 10 and onCrystalpercentage < 19 then
+        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames2.png")
+    elseif onCrystalpercentage >= 20 and onCrystalpercentage < 29 then
+        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames3.png")   
+    elseif onCrystalpercentage >= 30 and onCrystalpercentage < 39 then
+        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames4.png")            
+    elseif onCrystalpercentage >= 40 and onCrystalpercentage < 49 then
+        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames5.png")            
+    elseif onCrystalpercentage >= 50 and onCrystalpercentage < 59 then
+        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames6.png")            
+    elseif onCrystalpercentage >= 60 and onCrystalpercentage < 69 then
+        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames7.png")            
+    elseif onCrystalpercentage >= 70 and onCrystalpercentage < 74 then
+        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames8.png")            
+    elseif onCrystalpercentage >= 75 and onCrystalpercentage < 93 then
+        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames9.png")
+    elseif onCrystalpercentage >= 100 and onCrystalpercentage < 1000 then
+        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames10.png")
     end
-end
---create finish
-function createFinish()
-    finish = {}
-   
-
-    finish.body = love.physics.newBody(world, 37500, -1820, "static")
-    finish.shape = love.physics.newRectangleShape(30,300)
-    finish.fixture = love.physics.newFixture(finish.body, finish.shape, 1)
-    finish.fixture:setUserData(({object = finish,type = "finish"}))
-    table.insert(finishs,finish)
-
-  
-end
-
-function drawFinish()
-    love.graphics.setColor(1,0,0)
-    for _, finish in ipairs(finishs) do
-           love.graphics.polygon("fill", finish.body:getWorldPoints(finish.shape:getPoints()))
-    end
+    love.graphics.draw(crystalImg, 1750, 15, nil, 2.5, 2.5)
 end
 
 -- Function to check the distance between enemies and a crystal

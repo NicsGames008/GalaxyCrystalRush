@@ -6,7 +6,7 @@ local spike
 local void
 local enemyBarrier
 local barrier
-
+local finish
 
 -- Draw the layers from tiled
 function DrawLevel(map)
@@ -26,7 +26,6 @@ function loadGround(world, grounds)
         for i, obj in pairs(map.layers['Ground'].objects) do
             ground = {}
 
-
             if obj.shape == "rectangle" then
 
                 ground.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
@@ -35,13 +34,10 @@ function loadGround(world, grounds)
                 ground.fixture:setUserData(({object = ground,type = "ground", index = i}))
 
                 table.insert(grounds, ground)
-            end
-            
+            end           
         end
         return grounds
-    end
-
-    
+    end    
 end
 
 -- Load wall layer
@@ -63,8 +59,6 @@ function loadWalls(world, walls)
                 wall.fixture:setUserData(({object = wall,type = "wall", index = i}))
 
                 table.insert(walls, wall)
-
-
             end
 
             if obj.shape == "polygon" then
@@ -75,14 +69,12 @@ function loadWalls(world, walls)
 
                     table.insert (vertices, point.x - obj.x)
                     table.insert (vertices, point.y - obj.y)
-
                 end
 
                 walls.body = love.physics.newBody(world, obj.x, obj.y, "static")
                 walls.shape = love.physics.newPolygonShape(unpack(vertices))
                 walls.fixture = love.physics.newFixture(walls.body, walls.shape, 1)
                 table.insert(walls, wall)
-
             end
 
             if obj.shape == "ellipse" then
@@ -92,8 +84,7 @@ function loadWalls(world, walls)
                 walls.shape = love.physics.newCircleShape(obj.width / 2)
                 walls.fixture = love.physics.newFixture(walls.body, walls.shape, 1)
                 table.insert(walls, wall)
-            end
-            
+            end            
         end
         return walls
     end
@@ -106,7 +97,6 @@ function loadSpikes(world, spikes)
 
         for i, obj in pairs(map.layers['Spikes'].objects) do
             spike = {}
-
        
             if obj.shape == "rectangle" then
 
@@ -116,12 +106,8 @@ function loadSpikes(world, spikes)
                 spike.fixture:setUserData(({object = spike,type = "spike", index = i}))
 
                 table.insert(spikes, spike)
-
-            end
-
-         
-        end
-        
+            end        
+        end        
         return spikes
     end
 end
@@ -133,10 +119,7 @@ function loadVoids( world, voids)
 
         for i, obj in pairs(map.layers['Portal'].objects) do
             void = {}
-
-
             if obj.shape == "rectangle" then
-
                 void.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
                 void.shape = love.physics.newRectangleShape(obj.width,obj.height)
                 void.fixture = love.physics.newFixture(void.body, void.shape, 1)
@@ -144,7 +127,6 @@ function loadVoids( world, voids)
 
                 table.insert(voids, void)
             end
-
         end
         return voids, void
     end
@@ -159,7 +141,6 @@ function loadBarriers(world, enemyBarriers, barriers)
         for i, obj in pairs(map.layers['Enemy barriers'].objects) do
             enemyBarrier = {}
 
-
             if obj.shape == "rectangle" then
 
                 enemyBarrier.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
@@ -169,15 +150,11 @@ function loadBarriers(world, enemyBarriers, barriers)
                 enemyBarrier.fixture:setUserData(({object = enemyBarrier,type = "enemyBarrier", index = i,width = obj.width}))
 
                 table.insert(enemyBarriers, enemyBarrier)
-
             end
-
         end
     end
 
     -- Load wall jump cancel layer
-
-
     if map.layers['Wall jump cancel'] then
 
 
@@ -201,4 +178,51 @@ function loadBarriers(world, enemyBarriers, barriers)
     return enemyBarriers, barriers
 end
 
+function createFinish(world, finishs)
+    finish = {}
+   
 
+    finish.body = love.physics.newBody(world, 37500, -1820, "static")
+    finish.shape = love.physics.newRectangleShape(30,300)
+    finish.fixture = love.physics.newFixture(finish.body, finish.shape, 1)
+    finish.fixture:setUserData(({object = finish,type = "finish"}))
+    table.insert(finishs,finish)
+
+    return finishs
+end
+
+function drawFinish(finishs)
+    love.graphics.setColor(1,0,0)
+    for _, finish in ipairs(finishs) do
+           love.graphics.polygon("fill", finish.body:getWorldPoints(finish.shape:getPoints()))
+    end
+end
+
+-- Function to display the "Game Over" screen
+function killedScreen()
+    -- Get the width and height of the screen
+    screenWidth = love.graphics.getWidth()
+    screenHeight = love.graphics.getHeight()
+
+    -- Calculate the middle position for text placement
+    middleX = screenWidth / 2 - 50
+    middleY = screenHeight / 2
+
+    -- Set the text color to white and display "Game Over!" at the calculated position
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("Game over!", middleX, middleY)
+end
+
+function successScreen()
+    -- Get the width and height of the screen
+    screenWidth = love.graphics.getWidth()
+    screenHeight = love.graphics.getHeight()
+
+    -- Calculate the middle position for text placement
+    middleX = screenWidth / 2 - 50
+    middleY = screenHeight / 2
+
+    -- Set the text color to white and display "Game Over!" at the calculated position
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("You won!", middleX, middleY)
+end

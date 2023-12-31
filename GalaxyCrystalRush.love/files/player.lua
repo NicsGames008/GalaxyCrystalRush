@@ -38,10 +38,14 @@ function UpdatePlayer(dt, sound, canJump)
 
         if love.keyboard.isDown("left") then    
             player.body:applyForce(-player.speed, 0)
-            sound.walking:play()
+            if player.onground then                
+                sound.walking:play()
+            end
         elseif love.keyboard.isDown("right") then
             player.body:applyForce(player.speed, 0)
-            sound.walking:play()
+            if player.onground then                
+                sound.walking:play()
+            end
         elseif player.onground then
             local vx, vy = player.body:getLinearVelocity()
             player.body:applyForce(-vx * forceMultiplier, -vy * forceMultiplier)
@@ -50,26 +54,9 @@ function UpdatePlayer(dt, sound, canJump)
     
     
     player.anim:update(dt)
-    -- -- Check for ground contact and update player state accordingly
-    -- if player.body:isTouching(ground.body) and released then
-    --     object = "ground"
-    --     canJump = true
-    --     canJump = 0
-    --     canWallJump = true
-    -- end
-
-    -- -- Check for wall contact and update player state accordingly
-    -- if player.body:isTouching(wall.body) and released then
-    --     object = "wall"
-    --     canJump = true
-    --     canJump = 0
-    --     canWallJump = true
-    -- end
 end
 
 -- Function to draw the player on the screen
 function drawPlayer(x, y)
-    --love.graphics.setColor(1, 0, 0)
-    --love.graphics.circle("fill", player.body:getX(), player.body:getY(), player.shape:getRadius())
     player.anim:draw(player.spriteSheet, player.body:getX(), player.body:getY(), nil, 3, 3, 30,45)
 end
