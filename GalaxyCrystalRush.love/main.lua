@@ -38,7 +38,7 @@ local walljumpf = 1500
 local finishs= {}
 local success = false
 local sound = {}
-local onCrystalpercentage = 0
+local onCrystalPercentage = 1
 local onCrystalCount = 0
 
 -- load 
@@ -352,7 +352,7 @@ function BeginContact(fixtureA, fixtureB, contact)
 
         onCrystalCount = onCrystalCount + 1
 
-        onCrystalpercentage = math.floor((onCrystalCount / #lightCrystal)*100)
+        onCrystalPercentage = math.floor((onCrystalCount / #lightCrystal)*100)
 
         sound.crystalDing:play()
     end
@@ -379,29 +379,99 @@ function math.sign(x)
 end
 
 function drawUI()
-    love.graphics.setColor(1, 1, 1)
-    local crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames1.png")
+    -- local image = love.graphics.newImage("sprites/CrystalFrames.png")
 
-    if onCrystalpercentage >= 10 and onCrystalpercentage < 19 then
-        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames2.png")
-    elseif onCrystalpercentage >= 20 and onCrystalpercentage < 29 then
-        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames3.png")   
-    elseif onCrystalpercentage >= 30 and onCrystalpercentage < 39 then
-        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames4.png")            
-    elseif onCrystalpercentage >= 40 and onCrystalpercentage < 49 then
-        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames5.png")            
-    elseif onCrystalpercentage >= 50 and onCrystalpercentage < 59 then
-        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames6.png")            
-    elseif onCrystalpercentage >= 60 and onCrystalpercentage < 69 then
-        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames7.png")            
-    elseif onCrystalpercentage >= 70 and onCrystalpercentage < 74 then
-        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames8.png")            
-    elseif onCrystalpercentage >= 75 and onCrystalpercentage < 93 then
-        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames9.png")
-    elseif onCrystalpercentage >= 100 and onCrystalpercentage < 1000 then
-        crystalImg = love.graphics.newImage("sprites/crystals/CrystalFrames10.png")
+    -- local quads = {}
+
+    -- local rows = image:getHeight() / 32
+    -- local columns = image:getWidth() / 64
+
+    -- for row = 1, rows do
+    --     for col = 1, columns do
+    --         local quad = love.graphics.newQuad((col - 1) * 64, (row - 1) * 32, 64, 32, image:getDimensions())
+    --         table.insert(quads, quad)
+    --     end
+    -- end
+
+    -- local crystalImg = 1
+    -- if onCrystalpercentage >= 10 and onCrystalpercentage < 19 then
+    --     crystalImg = 2
+    -- elseif onCrystalpercentage >= 20 and onCrystalpercentage < 29 then
+    --     crystalImg = 3 
+    -- elseif onCrystalpercentage >= 30 and onCrystalpercentage < 39 then
+    --     crystalImg = 4
+    -- elseif onCrystalpercentage >= 40 and onCrystalpercentage < 49 then
+    --     crystalImg = 5
+    -- elseif onCrystalpercentage >= 50 and onCrystalpercentage < 59 then
+    --     crystalImg = 6
+    -- elseif onCrystalpercentage >= 60 and onCrystalpercentage < 69 then
+    --     crystalImg = 7       
+    -- elseif onCrystalpercentage >= 70 and onCrystalpercentage < 74 then
+    --     crystalImg = 8
+    -- elseif onCrystalpercentage >= 75 and onCrystalpercentage < 93 then
+    --     crystalImg = 9
+    -- elseif onCrystalpercentage >= 100 and onCrystalpercentage < 1000 then
+    --     crystalImg = 10
+    -- end
+    -- local windowWidth = love.graphics.getWidth()
+    -- local imageWidth = 175
+
+    -- local x = windowWidth - imageWidth 
+    -- love.graphics.setColor(1, 1, 1)
+    -- love.graphics.draw(image, quads[crystalImg], x, 15, nil, 2.5, 2.5)
+
+
+    -- Load the crystal frames image
+    local crystalFramesImage = love.graphics.newImage("sprites/CrystalFrames.png")
+
+    -- Create an array (table) to store quads for crystal frames
+    local crystalQuads = {}
+
+    -- Calculate the number of quads in each row and column
+    local rows = crystalFramesImage:getHeight() / 32
+    local columns = crystalFramesImage:getWidth() / 64
+
+    -- Populate the quads array
+    for row = 1, rows do
+        for col = 1, columns do
+            local quad = love.graphics.newQuad((col - 1) * 64, (row - 1) * 32, 64, 32, crystalFramesImage:getDimensions())
+            table.insert(crystalQuads, quad)
+        end
     end
-    love.graphics.draw(crystalImg, 1750, 15, nil, 2.5, 2.5)
+
+    -- Makes the inicial frame to the 0%
+    local currentCrystalFrame = 1
+    print(onCrystalPercentage)
+
+    if onCrystalPercentage >= 10 and onCrystalPercentage < 19 then
+        currentCrystalFrame = 2
+    elseif onCrystalPercentage >= 20 and onCrystalPercentage < 29 then
+        currentCrystalFrame = 3 
+    elseif onCrystalPercentage >= 30 and onCrystalPercentage < 39 then
+        currentCrystalFrame = 4
+    elseif onCrystalPercentage >= 40 and onCrystalPercentage < 49 then
+        currentCrystalFrame = 5
+    elseif onCrystalPercentage >= 50 and onCrystalPercentage < 59 then
+        currentCrystalFrame = 6
+    elseif onCrystalPercentage >= 60 and onCrystalPercentage < 69 then
+        currentCrystalFrame = 7       
+    elseif onCrystalPercentage >= 70 and onCrystalPercentage < 74 then
+        currentCrystalFrame = 8
+    elseif onCrystalPercentage >= 75 and onCrystalPercentage < 93 then
+        currentCrystalFrame = 9
+    elseif onCrystalPercentage >= 100 and onCrystalPercentage < 1000 then
+        currentCrystalFrame = 10
+    end
+
+    -- Calculate the X-coordinate for drawing at the top-right corner + a 15 px offsite
+    local windowWidth = love.graphics.getWidth()
+    local imageWidth = 175
+    local x = windowWidth - imageWidth 
+
+    -- Set color to white (no tint)
+    love.graphics.setColor(1, 1, 1)
+    -- Draw the selected crystal frame scaled at the top-right corner
+    love.graphics.draw(crystalFramesImage, crystalQuads[currentCrystalFrame], x, 15, nil, 2.5, 2.5)
 end
 
 -- Function to check the distance between enemies and a crystal
