@@ -690,13 +690,16 @@ world:destroy()
     player.body:setPosition(checkpointX,checkpointY)
     local playerX, playerY = player.body:getPosition()
     local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
-    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
+    --lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
 
 end
 
 
 
 function toCheckpoint()
+    for i, light in pairs(lightCrystal)do    
+        light:Remove()
+    end
     enemies = {}
     ground = {}
 killed = false
@@ -731,7 +734,7 @@ rightWallJump = false
 world:destroy()
 
 
-   world = love.physics.newWorld(0, 15 * 64, true)
+    world = love.physics.newWorld(0, 15 * 64, true)
    world:setCallbacks(BeginContact, EndContact, nil, nil)
 
    -- Initialize Box2D physics for the map
