@@ -55,6 +55,7 @@ local success = false
 local initialized = false
 local leftWallJump = false
 local rightWallJump = false
+local checkpointX, checkpointY
 
 local Shadows = require("libraries/shadows")
 local LightWorld = require("libraries/shadows.LightWorld")
@@ -113,14 +114,12 @@ function love.update(dt)
     map:update(dt)
 
     -- Iterate through enemies and update their movement if they are not killed
-    for i, enemy in ipairs(enemies) do
-        if not enemy.killed then
-            enemyMove(dt, enemies, enemy, enemyBarriers)
-        end
-    end
+  
+    enemyMove(dt, enemies, enemyBarriers)
+        
 
     -- Update the player's position and handle collisions with ground and walls
-    UpdatePlayer(dt, ground, wall)
+    UpdatePlayer(dt, ground, wall,player)
     if brightLevel then
 
     -- Update the light position for the player
@@ -182,6 +181,7 @@ end
 function love.draw()
     if state == STATE_MAIN_MENU then
         drawMainMenu()
+        reset()
     end
     if state == STATE_PAUSE then
         drawPauseMenu()
@@ -216,7 +216,7 @@ function love.draw()
         love.graphics.print(object, 0, 0)
 
         -- Draw the player at their current position
-        drawPlayer(playerX, playerY)
+        drawPlayer(playerX, playerY,player)
 
         --drawBoost()
 
@@ -256,7 +256,7 @@ function killedScreen()
 
     -- Set the text color to white and display "Game Over!" at the calculated position
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Game over!", middleX, middleY)
+    love.graphics.print("Game over! Press 'r' to retry or press p to get to the last checkpoint", middleX, middleY)
 end
 function successScreen()
     -- Get the width and height of the screen
@@ -386,6 +386,13 @@ function love.keypressed(key)
         text = tostring(state)
 
     end 
+    if key == "r" then 
+        reset()
+
+    end 
+    if key == "p" then 
+        toCheckpoint()
+    end 
     ------------------------------------------------------------------------------------------------------------------------
 
 end
@@ -476,7 +483,7 @@ function BeginContact(fixtureA, fixtureB, contact)
         lightCrystal[fixtureA:getUserData().index] = loadLight(2000, xCrystal, yCrystal)
 
         -- Recalculate the light world
-	    UpdateLightWorld()
+	    --UpdateLightWorld()
 
         -- Change the type of the crystal to "onCrystal"
         fixtureA:getUserData().type = "onCrystal"
@@ -496,6 +503,12 @@ function BeginContact(fixtureA, fixtureB, contact)
         canJump = true
         jumpCount = 0
         canWallJump = true
+    end
+
+
+    if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" then
+        local checkpointX,CheckpointY = fixtureA.getUserData().object:getPosition()
+       
     end
 
 end
@@ -612,4 +625,137 @@ function loadGame()
     local playerX, playerY = player.body:getPosition()
     local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
     lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
+end
+
+
+function reset()
+     enemies = {}
+     ground = {}
+ killed = false
+ object = "idk"
+ jumpCount = 0
+ released = true
+ cheat = false
+ grounds = {}
+ walls = {}
+ spikes = {}
+ voids = {}
+ wallJump = false
+ brightLevel = true
+ text = "false"
+ lightCrystal = {}
+ barriers ={}
+ crystals = {}
+ enemyBarriers =  {}
+ jumpf = 1500
+ cheatF = 1000
+ walljumpf = 1500
+ boosts = {}
+ boostDuration = 3 
+ boostMaxVelocity = 1000
+ boostTimer = 0
+ isBoostActive = false
+ finishs= {}
+ success = false
+ initialized = false
+ leftWallJump = false
+ rightWallJump = false
+checkpointX = -100
+checkpointY = -500
+world:destroy()
+
+
+    world = love.physics.newWorld(0, 15 * 64, true)
+    world:setCallbacks(BeginContact, EndContact, nil, nil)
+
+    -- Initialize Box2D physics for the map
+    map:box2d_init(world)
+
+ 
+
+    -- Create player and load various game elements
+    player = CreatePlayer(world)
+    grounds, ground = loadGround(world, grounds, ground)
+    walls, wall = loadWalls(world, walls, wall)
+    spikes, spike = loadSpikes(world, spikes, spike)
+    voids, void = loadVoids(world, voids, void)
+    enemyBarriers, enemyBarrier, barriers, barrier = loadBarriers(world, enemyBarriers, enemyBarrier, barriers, barrier)
+    crystals, lightCrystal = loadCrystals(world, crystals,  lightCrystal)
+    enemies = loadEnemies(world, enemies)
+    createBoostPlatform()
+    createFinish()
+
+
+    -- Get initial player position and set up light source
+    player.body:setPosition(checkpointX,checkpointY)
+    local playerX, playerY = player.body:getPosition()
+    local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
+    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
+
+end
+
+
+
+function toCheckpoint()
+    enemies = {}
+    ground = {}
+killed = false
+object = "idk"
+jumpCount = 0
+released = true
+cheat = false
+grounds = {}
+walls = {}
+spikes = {}
+voids = {}
+wallJump = false
+brightLevel = true
+text = "false"
+lightCrystal = {}
+barriers ={}
+crystals = {}
+enemyBarriers =  {}
+jumpf = 1500
+cheatF = 1000
+walljumpf = 1500
+boosts = {}
+boostDuration = 3 
+boostMaxVelocity = 1000
+boostTimer = 0
+isBoostActive = false
+finishs= {}
+success = false
+initialized = false
+leftWallJump = false
+rightWallJump = false
+world:destroy()
+
+
+   world = love.physics.newWorld(0, 15 * 64, true)
+   world:setCallbacks(BeginContact, EndContact, nil, nil)
+
+   -- Initialize Box2D physics for the map
+   map:box2d_init(world)
+
+
+
+   -- Create player and load various game elements
+   player = CreatePlayer(world)
+   grounds, ground = loadGround(world, grounds, ground)
+   walls, wall = loadWalls(world, walls, wall)
+   spikes, spike = loadSpikes(world, spikes, spike)
+   voids, void = loadVoids(world, voids, void)
+   enemyBarriers, enemyBarrier, barriers, barrier = loadBarriers(world, enemyBarriers, enemyBarrier, barriers, barrier)
+   crystals, lightCrystal = loadCrystals(world, crystals,  lightCrystal)
+   enemies = loadEnemies(world, enemies)
+   createBoostPlatform()
+   createFinish()
+
+
+   -- Get initial player position and set up light source
+   player.body:setPosition(checkpointX,checkpointY)
+   local playerX, playerY = player.body:getPosition()
+   local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
+   lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
+
 end

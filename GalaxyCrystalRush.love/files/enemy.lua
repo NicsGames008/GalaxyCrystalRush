@@ -25,7 +25,7 @@ function loadEnemies(world, enemies, enemy)
             end
 
         end
-        return enemies, enemy
+        return enemies
     end
 end
 
@@ -41,11 +41,13 @@ end
 
 -- makes the enemies move and change when hitting a barrier
 
-function enemyMove(dt, enemies, enemy, enemyBarriers)
+function enemyMove(dt, enemies, enemyBarriers)
+      
+
     for _, enemy in ipairs(enemies) do
         if not enemy.killed then
             if not enemy.speed then
-                enemy.speed = 15
+                enemy.speed = 100
             end
 
             local enemyX, enemyY = enemy.body:getPosition()

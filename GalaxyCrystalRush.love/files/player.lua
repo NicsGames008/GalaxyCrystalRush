@@ -1,12 +1,12 @@
 require "files/vector2"
 
 -- Initialize player variable
-local player
+
 
 -- Function to create a player object in the game world
 function CreatePlayer(world)
     -- Create a new player object 
-    player = {}
+   local player = {}
 
     -- Set up the player's physics body, shape, and fixture
     player.body = love.physics.newBody(world, -100, -500, "dynamic")
@@ -24,7 +24,7 @@ function CreatePlayer(world)
 end
 
 -- Function to update the player's position and state
-function UpdatePlayer(dt, ground, wall)
+function UpdatePlayer(dt, ground, wall, player)
     -- Apply forces based on keyboard input for horizontal movement
     if love.keyboard.isDown("left") then
         player.body:applyForce(-player.speed, 0)
@@ -50,7 +50,7 @@ function UpdatePlayer(dt, ground, wall)
 end
 
 -- Function to draw the player on the screen
-function drawPlayer(x, y)
+function drawPlayer(x, y, player)
     love.graphics.setColor(1, 0, 0)
     love.graphics.circle("fill", player.body:getX(), player.body:getY(), player.shape:getRadius())
 end
