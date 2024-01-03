@@ -18,7 +18,6 @@ local playerX, playerY
 local killed = false
 local canJump = false
 local cheat = false
-local cam
 local enemies = {}
 local grounds = {}
 local walls = {}
@@ -28,7 +27,6 @@ local barriers ={}
 local crystals = {}
 local wallJump = false
 local brightLevel = true
-local text = "false"
 local lightPlayer
 local lightCrystal = {}
 local enemyBarriers =  {}
@@ -63,11 +61,6 @@ function love.load()
 
     -- Add a custom layer for sprites to the map
     map:addCustomLayer("Sprite Layer", 3)
-
-    -- Set up camera coordinates
-    cam = {}
-    cam.x = 0
-    cam.y = 0
 
     sound.jump = love.audio.newSource("sounds/JumpSound_01.mp3", "static")
     sound.walking = love.audio.newSource("sounds/waklingSound_01.mp3", "static")
@@ -160,7 +153,6 @@ function love.draw()
 
         -- Set color to white and draw the Box2D physics objects from the map
         love.graphics.setColor(1, 1, 1)
-        map:box2d_draw()
 
         -- Draw the level layout
         DrawLevel(map)
@@ -168,14 +160,8 @@ function love.draw()
         -- Draw enemies on the screen
         drawEnemies(enemies)
 
-        -- Convert text to string and display it on the screen
-        object = tostring(text)
-        love.graphics.print(object, 0, 0)
-
         -- Draw the player at their current position
         drawPlayer(playerX, playerY)
-
-        --drawBoost()
 
         --draw the finsih line
         drawFinish(finishs)
@@ -191,9 +177,6 @@ function love.draw()
         camera:detach()
 
         drawUI()
-        
-        -- Draw the camera view
-        --camera:draw()
     end
 end
 
@@ -320,12 +303,8 @@ function BeginContact(fixtureA, fixtureB, contact)
 
     -- Check if the player collides with the ground and handle accordingly
     if fixtureA:getUserData().type == "ground" and fixtureB:getUserData().type == "player" then
-        -- Print a message for debugging
-
         -- Get the contact normal as a vector
         local normal = vector2.new(contact:getNormal())
-
-        -- Set text indicating the player is on the floor
 
         -- Check if the contact normal points upward (indicating contact with the floor)
         if normal.y == -1 then
@@ -379,48 +358,6 @@ function math.sign(x)
 end
 
 function drawUI()
-    -- local image = love.graphics.newImage("sprites/CrystalFrames.png")
-
-    -- local quads = {}
-
-    -- local rows = image:getHeight() / 32
-    -- local columns = image:getWidth() / 64
-
-    -- for row = 1, rows do
-    --     for col = 1, columns do
-    --         local quad = love.graphics.newQuad((col - 1) * 64, (row - 1) * 32, 64, 32, image:getDimensions())
-    --         table.insert(quads, quad)
-    --     end
-    -- end
-
-    -- local crystalImg = 1
-    -- if onCrystalpercentage >= 10 and onCrystalpercentage < 19 then
-    --     crystalImg = 2
-    -- elseif onCrystalpercentage >= 20 and onCrystalpercentage < 29 then
-    --     crystalImg = 3 
-    -- elseif onCrystalpercentage >= 30 and onCrystalpercentage < 39 then
-    --     crystalImg = 4
-    -- elseif onCrystalpercentage >= 40 and onCrystalpercentage < 49 then
-    --     crystalImg = 5
-    -- elseif onCrystalpercentage >= 50 and onCrystalpercentage < 59 then
-    --     crystalImg = 6
-    -- elseif onCrystalpercentage >= 60 and onCrystalpercentage < 69 then
-    --     crystalImg = 7       
-    -- elseif onCrystalpercentage >= 70 and onCrystalpercentage < 74 then
-    --     crystalImg = 8
-    -- elseif onCrystalpercentage >= 75 and onCrystalpercentage < 93 then
-    --     crystalImg = 9
-    -- elseif onCrystalpercentage >= 100 and onCrystalpercentage < 1000 then
-    --     crystalImg = 10
-    -- end
-    -- local windowWidth = love.graphics.getWidth()
-    -- local imageWidth = 175
-
-    -- local x = windowWidth - imageWidth 
-    -- love.graphics.setColor(1, 1, 1)
-    -- love.graphics.draw(image, quads[crystalImg], x, 15, nil, 2.5, 2.5)
-
-
     -- Load the crystal frames image
     local crystalFramesImage = love.graphics.newImage("sprites/CrystalFrames.png")
 
@@ -441,7 +378,6 @@ function drawUI()
 
     -- Makes the inicial frame to the 0%
     local currentCrystalFrame = 1
-    print(onCrystalPercentage)
 
     if onCrystalPercentage >= 10 and onCrystalPercentage < 19 then
         currentCrystalFrame = 2
