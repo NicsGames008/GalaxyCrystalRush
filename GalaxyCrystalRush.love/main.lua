@@ -106,7 +106,7 @@ function love.update(dt)
     end
 
     -- Update the player's position and handle collisions with ground and walls
-    UpdatePlayer(dt, sound, canJump)
+    UpdatePlayer(dt, sound)
 
     if brightLevel then
         -- Update the light position for the player
@@ -222,7 +222,6 @@ function love.keypressed(key)
             player.body:setLinearVelocity(currentVelocityX, maxVelocityY * math.sign(currentVelocityY))
         end
 
-        canJump = false
 
         sound.jump:play()
 
@@ -245,7 +244,6 @@ function love.keypressed(key)
     -- If cheats are enabled, apply a cheat jump when the space key is pressed
     if key == "space" and cheat then
         local jumpForce = vector2.new(0, -cheatF)
-        canJump = false
         player.onground = false
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
         sound.jump:play()
@@ -298,7 +296,6 @@ function BeginContact(fixtureA, fixtureB, contact)
         -- Enable wall jumping and set related variables
         canWallJump = true
         wallJump = true
-        player.onground = false
     end
 
     -- Check if the player collides with the ground and handle accordingly
