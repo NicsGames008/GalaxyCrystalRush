@@ -38,7 +38,7 @@ function createPlayer(world, anim8)
 end
 
 -- Function to update the player's position and state
-function UpdatePlayer(dt, ground, wall, player)
+function updatePlayer(dt, sound)
     -- Apply forces based on keyboard input for horizontal movement
     local forceMultiplier = 25 -- Adjust this value to control how quickly the player stops
 
