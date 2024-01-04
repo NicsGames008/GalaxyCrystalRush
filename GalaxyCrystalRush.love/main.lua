@@ -148,6 +148,13 @@ function love.draw()
         killedScreen()
         end
     else
+
+        local image = love.graphics.newImage("sprites/rock-6.png")
+        local a = love.graphics:getWidth() / 500
+        local b = love.graphics:getHeight() / 500
+
+        love.graphics.draw(image, a, b, nil, 1.3, 1.3)
+
         -- Set up the camera view
         camera:attach()
 
