@@ -66,6 +66,11 @@ end
 function drawPauseMenu()
     local ww = love.graphics.getWidth()
     local wh = love.graphics.getHeight()
+    love.graphics.setColor(0, 0, 0, 0.4)
+    love.graphics.rectangle("fill", 0, 0, ww, wh)
+
+    -- Reset color to default
+    love.graphics.setColor(1, 1, 1)
     local button_width = ww * (1/3)
     local margin = 16
     local total_height = (BUTTON_HEIGHT + margin) * #buttons

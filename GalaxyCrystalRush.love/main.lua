@@ -6,6 +6,8 @@ require"files/level"
 require "files/light"
 require "files/crystal"
 require"/files/mainMenu"
+require"screens"
+require"logic"
 
 local STATE_MAIN_MENU = 0
 local STATE_GAMEPLAY = 1
@@ -59,39 +61,13 @@ local checkpointX, checkpointY
 
 local Shadows = require("libraries/shadows")
 local LightWorld = require("libraries/shadows.LightWorld")
---local newLightWorld = LightWorld:new()
 
 -- load 
 function love.load()
     state = STATE_MAIN_MENU
-
     loadMainMenu()
     loadGame()
 
-end
-
--- Function to check the distance between enemies and a crystal
-function checkEnemyDistanceToCrystal(crystalX, crystalY)
-    -- Create a vector representing the position of the crystal
-    local crystalPosition = vector2.new(crystalX, crystalY)
-
-    -- Iterate through each enemy in the 'enemies' table
-    for _, enemy in ipairs(enemies) do
-        -- Get the position of the current enemy
-        local enemyPosition = vector2.new(enemy.body:getX(), enemy.body:getY())
-
-        -- Calculate the vector between the crystal and the enemy
-        local distanceVector = vector2.sub(crystalPosition, enemyPosition)
-
-        -- Calculate the distance between the crystal and the enemy
-        local distance = vector2.magnitude(distanceVector)
-
-        -- Check if the distance is within a certain range (20000 units in this case)
-        if distance <= 2500 then
-            -- Mark the enemy as killed
-            enemy.killed = true
-        end
-    end
 end
 
 -- update
@@ -99,81 +75,11 @@ end
 function love.update(dt)
     state = updateState(state)
     if state == STATE_GAMEPLAY then 
-    -- Update physics world and camera
-    world:update(dt)
-    camera:update(dt)
-
-    -- Get player position and adjust camera to follow player with an offset
-    local pX, pY = player.body:getPosition()
-    camera:follow(pX - 900, pY - 800)
-
-    -- Set camera follow style to 'PLATFORMER'
-    camera.follow_style = 'PLATFORMER'
-
-    -- Update the map
-    map:update(dt)
-
-    -- Iterate through enemies and update their movement if they are not killed
-  
-    enemyMove(dt, enemies, enemyBarriers)
-        
-
-    -- Update the player's position and handle collisions with ground and walls
-    UpdatePlayer(dt, ground, wall,player)
-    if brightLevel then
-
-    -- Update the light position for the player
-    local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
-    updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
-
-        -- Iterate through crystals, update their light positions, and check enemy distance to crystals
-        for i = 1, #crystals, 1 do
-            local xCrystal, yCrystal = crystals[i].body:getPosition()
-            local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
-            updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
-            
-            -- Check if the crystal is of type "onCrystal" and update enemies accordingly
-            if crystals[i].fixture:getUserData().type == "onCrystal" then
-                checkEnemyDistanceToCrystal(xCrystal, yCrystal)
-            end
-        end
+        updateGame(dt)
     end
-
-    -- Remove killed enemies from the table and destroy their bodies
-    for i, enemy in ipairs(enemies) do
-        if enemy.killed then
-            table.remove(enemies, i)
-            enemy.body:destroy()
-        end
+    if state == STATE_PAUSE then
+        updatePause(dt)
     end
-
-
-    local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
-    --run boost timer
-    if isBoostActive and cheat == false then
-        -- Decrease the boost timer
-        boostTimer = boostTimer - dt
-
-        -- If the boost duration is over deactivate boost
-        if boostTimer <= 0 then
-            isBoostActive = false
-        end
-    end    
-    --regular max velocity
-    if isBoostActive == false and math.abs(currentVelocityX) > 700 and cheat == false then
-        player.body:setLinearVelocity(700 * math.sign(currentVelocityX), currentVelocityY)
-    end
-    --kill player if he falls out of map
-    if pY > 1200 and cheat == false then
-        killed = true
-    end
-    
-    --UpdateLightWorld()
-end
-if state == STATE_PAUSE then
-end
-
-
 end
 
 --draw
@@ -184,92 +90,12 @@ function love.draw()
         reset()
     end
     if state == STATE_PAUSE then
-        drawPauseMenu()
+        drawGame()
+        drawPauseMenu()   
     end
     if state == STATE_GAMEPLAY then
-
-        love.graphics.print("test",0,0)
-    -- Check if the player is killed
-    if killed then
-        if success then 
-            successScreen()
-        else
-        -- Display the killed screen
-        killedScreen()
-        end
-    else
-        -- Set up the camera view
-        camera:attach()
-
-        -- Set color to white and draw the Box2D physics objects from the map
-        love.graphics.setColor(1, 1, 1)
-        map:box2d_draw()
-
-        -- Draw the level layout
-        DrawLevel(map)
-
-        -- Draw enemies on the screen
-        drawEnemies(enemies)
-
-        -- Convert text to string and display it on the screen
-        object = tostring(text)
-        love.graphics.print(object, 0, 0)
-
-        -- Draw the player at their current position
-        drawPlayer(playerX, playerY,player)
-
-        --drawBoost()
-
-        --draw the finsih line
-        drawFinish()
-
-        -- If brightLevel is true, draw the lighting effects
-        if brightLevel then
-            local Width = love.graphics:getWidth()
-            local Height = love.graphics:getHeight()
-            drawLight(Width, Height)
-        end
-
-        -- Release the camera view
-        camera:detach()
-
-        -- Draw the camera view
-        camera:draw()
+        drawGame()
     end
-
-    
-
-end
-love.graphics.setColor(1,0,0)
-    love.graphics.print(text,0,0)
-end
-
--- Function to display the "Game Over" screen
-function killedScreen()
-    -- Get the width and height of the screen
-    screenWidth = love.graphics.getWidth()
-    screenHeight = love.graphics.getHeight()
-
-    -- Calculate the middle position for text placement
-    middleX = screenWidth / 2 - 50
-    middleY = screenHeight / 2
-
-    -- Set the text color to white and display "Game Over!" at the calculated position
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Game over! Press 'r' to retry or press p to get to the last checkpoint", middleX, middleY)
-end
-function successScreen()
-    -- Get the width and height of the screen
-    screenWidth = love.graphics.getWidth()
-    screenHeight = love.graphics.getHeight()
-
-    -- Calculate the middle position for text placement
-    middleX = screenWidth / 2 - 50
-    middleY = screenHeight / 2
-
-    -- Set the text color to white and display "Game Over!" at the calculated position
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("You won!", middleX, middleY)
 end
 
 -- Function called when a key is released
@@ -284,6 +110,7 @@ end
 
 
 function love.keypressed(key)
+    if state == STATE_GAMEPLAY then
     -- Check if the space key is pressed and certain conditions are met
     if key == "space" and cheat == false and wallJump == false then
         -- Check jump conditions and apply linear impulse if allowed
@@ -344,12 +171,7 @@ function love.keypressed(key)
             released = false
     end
 
-
-
-
-
-
-
+end
 
     -----------------------------------------------------------------------------------------------------
     -- Cheats
@@ -526,9 +348,7 @@ function EndContact(fixtureA, fixtureB, contact)
 end
 
  -- Helper function to get the sign of a number
-function math.sign(x)
-    return x > 0 and 1 or x < 0 and -1 or 0
-end
+
 
 -- creates two boost platfrom s
 function createBoostPlatform()
@@ -629,6 +449,9 @@ end
 
 
 function reset()
+    for i, light in pairs(lightCrystal)do    
+        light:Remove()
+    end
      enemies = {}
      ground = {}
  killed = false
@@ -697,9 +520,6 @@ end
 
 
 function toCheckpoint()
-    for i, light in pairs(lightCrystal)do    
-        light:Remove()
-    end
     enemies = {}
     ground = {}
 killed = false
@@ -761,4 +581,173 @@ world:destroy()
    local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
 
+end
+
+function drawGame()
+
+    -- Check if the player is killed
+    if killed then
+        if success then 
+            successScreen()
+        else
+        -- Display the killed screen
+        killedScreen()
+        end
+    else
+        -- Set up the camera view
+        camera:attach()
+
+        -- Set color to white and draw the Box2D physics objects from the map
+        love.graphics.setColor(1, 1, 1)
+        --map:box2d_draw()
+
+        -- Draw the level layout
+        DrawLevel(map)
+
+        -- Draw enemies on the screen
+        drawEnemies(enemies)
+
+        -- Convert text to string and display it on the screen
+        object = tostring(text)
+        love.graphics.print(object, 0, 0)
+
+        -- Draw the player at their current position
+        drawPlayer(playerX, playerY,player)
+
+        --drawBoost()
+
+        --draw the finsih line
+        drawFinish()
+
+        -- If brightLevel is true, draw the lighting effects
+        if brightLevel then
+            local Width = love.graphics:getWidth()
+            local Height = love.graphics:getHeight()
+            drawLight(Width, Height)
+        end
+
+        -- Release the camera view
+        camera:detach()
+
+        -- Draw the camera view
+        camera:draw()
+    end
+end
+
+
+function updatePause(dt)
+    local pX, pY = player.body:getPosition()
+
+    local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
+    updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
+
+
+    for i = 1, #crystals, 1 do
+        local xCrystal, yCrystal = crystals[i].body:getPosition()
+        local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
+        updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
+        
+        
+    end
+end
+
+
+function updateGame(dt)
+        -- Update physics world and camera
+        world:update(dt)
+        camera:update(dt)
+    
+        -- Get player position and adjust camera to follow player with an offset
+        local pX, pY = player.body:getPosition()
+        camera:follow(pX - 900, pY - 800)
+    
+        -- Set camera follow style to 'PLATFORMER'
+        --camera.follow_style = 'PLATFORMER'
+    
+        -- Update the map
+        --map:update(dt)
+    
+        -- Iterate through enemies and update their movement if they are not killed
+      
+        enemyMove(dt, enemies, enemyBarriers)
+            
+    
+        -- Update the player's position and handle collisions with ground and walls
+        UpdatePlayer(dt, ground, wall,player)
+        if brightLevel then
+    
+        -- Update the light position for the player
+        local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
+        updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
+    
+            -- Iterate through crystals, update their light positions, and check enemy distance to crystals
+            for i = 1, #crystals, 1 do
+                local xCrystal, yCrystal = crystals[i].body:getPosition()
+                local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
+                updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
+                
+                -- Check if the crystal is of type "onCrystal" and update enemies accordingly
+                if crystals[i].fixture:getUserData().type == "onCrystal" then
+                    checkEnemyDistanceToCrystal(xCrystal, yCrystal)
+                end
+            end
+        end
+    
+        -- Remove killed enemies from the table and destroy their bodies
+        for i, enemy in ipairs(enemies) do
+            if enemy.killed then
+                table.remove(enemies, i)
+                enemy.body:destroy()
+            end
+        end
+    
+    
+        local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
+        --run boost timer
+        if isBoostActive and cheat == false then
+            -- Decrease the boost timer
+            boostTimer = boostTimer - dt
+    
+            -- If the boost duration is over deactivate boost
+            if boostTimer <= 0 then
+                isBoostActive = false
+            end
+        end    
+        --regular max velocity
+        if isBoostActive == false and math.abs(currentVelocityX) > 700 and cheat == false then
+            player.body:setLinearVelocity(700 * math.sign(currentVelocityX), currentVelocityY)
+        end
+        --kill player if he falls out of map
+        if pY > 1200 and cheat == false then
+            killed = true
+        end
+        
+        --UpdateLightWorld()
+    end
+
+
+
+
+-- Function to check the distance between enemies and a crystal
+function checkEnemyDistanceToCrystal(crystalX, crystalY)
+    -- Create a vector representing the position of the crystal
+    local crystalPosition = vector2.new(crystalX, crystalY)
+
+    -- Iterate through each enemy in the 'enemies' table
+    for _, enemy in ipairs(enemies) do
+        -- Get the position of the current enemy
+        local enemyPosition = vector2.new(enemy.body:getX(), enemy.body:getY())
+
+        -- Calculate the vector between the crystal and the enemy
+        local distanceVector = vector2.sub(crystalPosition, enemyPosition)
+
+        -- Calculate the distance between the crystal and the enemy
+        local distance = vector2.magnitude(distanceVector)
+
+        -- Check if the distance is within a certain range (20000 units in this case)
+        if distance <= 2500 then
+            -- Mark the enemy as killed
+            enemy.killed = true
+        end
+    end
 end
