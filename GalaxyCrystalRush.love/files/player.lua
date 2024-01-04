@@ -13,26 +13,23 @@ function createPlayer(world, anim8)
     player.shape = love.physics.newCircleShape(50)
     player.fixture = love.physics.newFixture(player.body, player.shape)
     player.body:setFixedRotation(true)
+    player.fixture:setUserData(({ object = player, type = "player", index = i }))
+
     player.speed = 2000
     player.jumpForce = -400
     player.hasMoved = false
     player.direction = 0
-    player.fixture:setUserData(({ object = player, type = "player", index = i }))
+    player.checkpointX = 0
+    player.checkpointY = 0
+    player.onground = false
+
     player.spriteSheet = love.graphics.newImage("sprites/Sprite-0001-Sheet.png")
     player.gird = anim8.newGrid(64, 64, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
-
     player.animations = {}
     player.animations.idle = anim8.newAnimation(player.gird('1-7', 1), 0.09)
     player.animations.walikingRight = anim8.newAnimation(player.gird('1-7', 2), 0.09)
     player.animations.walikingLeft = anim8.newAnimation(player.gird('1-7', 3), 0.09)
-
-
-
     player.anim = player.animations.idle
-    player.fixture:setUserData(({object = player,type = "player", index = i})) 
-    player.checkpointX = 0
-    player.checkpointY = 0
-    player.onground = false
 
     -- Return the created player object
     return player
@@ -44,7 +41,6 @@ function updatePlayer(dt, sound)
     local forceMultiplier = 25 -- Adjust this value to control how quickly the player stops
 
     -- Check if the player is on the ground before applying forces
-
     if love.keyboard.isDown("left") then
         player.body:applyForce(-player.speed, 0)
         player.hasMoved = true

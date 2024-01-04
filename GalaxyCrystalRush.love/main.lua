@@ -1,14 +1,13 @@
-local sti = require "libraries/sti"
-local Camera = require "libraries/Camera"
 local anim8 = require("libraries.anim8")
 require "files/enemy"
 require "files/player"
 require "files/level"
 require "files/light"
 require "files/crystal"
-require"/files/mainMenu"
-require"screens"
-require"logic"
+require "files/mainMenu"
+require "files/gamePlay"
+require "screens"
+require "logic"
 
 local STATE_MAIN_MENU = 0
 local STATE_GAMEPLAY = 1
@@ -17,27 +16,27 @@ local STATE_KILLED = 3
 local STATE_WIN = 4
 local state
 local world
-local player
 local playerX, playerY
 local killed = false
 local canJump = false
 local cheat = false
-local enemies = {}
+local player
 local grounds = {}
 local walls = {}
 local spikes = {}
 local voids = {}
+local enemyBarriers = {}
 local barriers = {}
 local crystals = {}
+local lightCrystal = {}
+local enemies = {}
+local finishs = {}
 local wallJump = false
 local brightLevel = true
 local lightPlayer
-local lightCrystal = {}
-local enemyBarriers = {}
 local jumpf = 1500
 local cheatF = 1000
 local walljumpf = 1500
-local finishs = {}
 local success = false
 local sound = {}
 local onCrystalPercentage = 1
@@ -50,7 +49,7 @@ local checkpointX, checkpointY
 function love.load()
     state = STATE_MAIN_MENU
     loadMainMenu()
-    loadGame()
+    sound, world, lightPlayer, lightCrystal, player = loadGame()
 end
 
 -- update
@@ -61,7 +60,7 @@ function love.update(dt)
     if state == STATE_GAMEPLAY then 
         updateGame(dt)
     elseif state == STATE_PAUSE then
-        updatePause(dt)
+        updatePause(dt, player, lightPlayer, camera, crystals, lightCrystal)
     end
 end
 
@@ -94,12 +93,10 @@ function love.keypressed(key)
     if state == STATE_GAMEPLAY then
 
         -- Check if the space key is pressed and certain conditions are met
-        if key == "space" and cheat == false and wallJump == false and canJump and player.onground then
+        if key == "space" and cheat == false and wallJump == false and player.onground then
             -- Check jump conditions and apply linear impulse if allowed
             local jumpForce = vector2.new(0, -jumpf)
             player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
-            player.onground = false
-            canJump = false
             player.anim = player.animations.idle
             sound.jump:play()
         end
@@ -183,7 +180,7 @@ function love.keypressed(key)
     if key == "r" then 
         reset()
 
-    end 
+    end
     if key == "p" then 
         toCheckpoint()
     end 
@@ -284,8 +281,7 @@ function BeginContact(fixtureA, fixtureB, contact)
     end
 
     if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" then
-        local checkpointX,CheckpointY = fixtureA.getUserData().object:getPosition()
-       
+        local checkpointX,CheckpointY = fixtureA.getUserData().object:getPosition()       
     end
 
 end
@@ -333,56 +329,50 @@ function checkEnemyDistanceToCrystal(crystalX, crystalY)
     end
 end
 
-function loadGame()
-     --state = STATE_GAMEPLAY
-    -- Set up window properties
-    love.window.setMode(1080, 900)
-    love.window.setFullscreen(true)
-    love.graphics.setDefaultFilter("nearest", "nearest")
+-- function loadGame()
+--      --state = STATE_GAMEPLAY
+--     -- Set up window properties
+--     love.window.setMode(1080, 900)
+--     love.window.setFullscreen(true)
+--     love.graphics.setDefaultFilter("nearest", "nearest")
 
-    -- Initialize camera with default parameters
-    camera = Camera(0, 0, 0, 0, 0.5)
+--     -- Initialize camera with default parameters
+--     camera = Camera(0, 0, 0, 0, 0.5)
 
-    -- Load map using Simple Tiled Implementation (STI) library with Box2D physics
-    map = sti("map/map.lua", { "box2d" })
+--     -- Load map using Simple Tiled Implementation (STI) library with Box2D physics
+--     map = sti("map/map.lua", { "box2d" })
 
-    -- Set up physics world using Box2D
-    love.physics.setMeter(64)
-    world = love.physics.newWorld(0, 20 * love.physics.getMeter(), true)
-    world:setCallbacks(BeginContact, EndContact, nil, nil)
+--     -- Set up physics world using Box2D
+--     love.physics.setMeter(64)
+--     world = love.physics.newWorld(0, 20 * love.physics.getMeter(), true)
+--     world:setCallbacks(BeginContact, EndContact, nil, nil)
 
-    -- Initialize Box2D physics for the map
-    map:box2d_init(world)
+--     -- Initialize Box2D physics for the map
+--     map:box2d_init(world)
 
-    -- Add a custom layer for sprites to the map
-    map:addCustomLayer("Sprite Layer", 3)
+--     -- Add a custom layer for sprites to the map
+--     map:addCustomLayer("Sprite Layer", 3)
 
-    -- -- Initialize and define functions for a custom sprite layer
-    -- local spriteLayer = map.layers["Sprite Layer"]
-    -- spriteLayer.sprites = {}
+--     sound.jump = love.audio.newSource("sounds/JumpSound_01.mp3", "static")
+--     sound.walking = love.audio.newSource("sounds/waklingSound_01.mp3", "static")
+--     sound.crystalDing = love.audio.newSource("sounds/crystalDing_01.mp3", "static")
 
-    sound.jump = love.audio.newSource("sounds/JumpSound_01.mp3", "static")
-    sound.walking = love.audio.newSource("sounds/waklingSound_01.mp3", "static")
-    sound.crystalDing = love.audio.newSource("sounds/crystalDing_01.mp3", "static")
+--     -- Create player and load various game elements
+--     player = createPlayer(world, anim8)
+--     grounds = loadGround(world, grounds)
+--     walls = loadWalls(world, walls)
+--     spikes = loadSpikes(world, spikes)
+--     voids = loadVoids(world, voids)
+--     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
+--     crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
+--     enemies = loadEnemies(world, enemies, anim8)
+--     finishs = createFinish(world, finishs)
 
-  
-
-    -- Create player and load various game elements
-    player = createPlayer(world, anim8)
-    grounds = loadGround(world, grounds)
-    walls = loadWalls(world, walls)
-    spikes = loadSpikes(world, spikes)
-    voids = loadVoids(world, voids)
-    enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
-    crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
-    enemies = loadEnemies(world, enemies, anim8)
-    finishs = createFinish(world, finishs)
-
-    -- Get initial player position and set up light source
-    local playerX, playerY = player.body:getPosition()
-    local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
-    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
-end
+--     -- Get initial player position and set up light source
+--     local playerX, playerY = player.body:getPosition()
+--     local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
+--     lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
+-- end
 
 function updateGame(dt)
     -- Update physics world and camera
@@ -391,12 +381,10 @@ function updateGame(dt)
 
     -- Get player position and adjust camera to follow player with an offset
     local pX, pY = player.body:getPosition()
-    camera:follow(pX - 900, pY - 800)
+    camera:follow(pX - 900, pY - 1200)
 
     -- Iterate through enemies and update their movement if they are not killed
-    
     enemyMove(dt, enemies, enemyBarriers)
-        
 
     -- Update the player's position and handle collisions with ground and walls
     updatePlayer(dt, sound)
@@ -450,17 +438,12 @@ function drawGame()
 
         -- Set color to white and draw the Box2D physics objects from the map
         love.graphics.setColor(1, 1, 1)
-        --map:box2d_draw()
 
         -- Draw the level layout
         drawLevel(map)
 
         -- Draw enemies on the screen
         drawEnemies(enemies)
-
-        -- -- Convert text to string and display it on the screen
-        -- object = tostring(text)
-        -- love.graphics.print(object, 0, 0)
 
         -- Draw the player at their current position
         drawPlayer(playerX, playerY)
@@ -523,6 +506,7 @@ function reset()
     rightWallJump = false
     checkpointX = -100
     checkpointY = -500
+    onCrystalPercentage = 0
     world:destroy()
 
 
@@ -585,6 +569,7 @@ function toCheckpoint()
     success = false
     leftWallJump = false
     rightWallJump = false
+    onCrystalPercentage = 0
     world:destroy()
 
 
@@ -594,20 +579,16 @@ function toCheckpoint()
    -- Initialize Box2D physics for the map
    map:box2d_init(world)
 
-
-
-   -- Create player and load various game elements
-   player = CreatePlayer(world)
-   grounds, ground = loadGround(world, grounds, ground)
-   walls, wall = loadWalls(world, walls, wall)
-   spikes, spike = loadSpikes(world, spikes, spike)
-   voids, void = loadVoids(world, voids, void)
-   enemyBarriers, enemyBarrier, barriers, barrier = loadBarriers(world, enemyBarriers, enemyBarrier, barriers, barrier)
-   crystals, lightCrystal = loadCrystals(world, crystals,  lightCrystal)
-   enemies = loadEnemies(world, enemies)
-   createBoostPlatform()
-   createFinish()
-
+    -- Create player and load various game elements
+    player = createPlayer(world, anim8)
+    grounds = loadGround(world, grounds)
+    walls = loadWalls(world, walls)
+    spikes = loadSpikes(world, spikes)
+    voids = loadVoids(world, voids)
+    enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
+    crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
+    enemies = loadEnemies(world, enemies, anim8)
+    finishs = createFinish(world, finishs)
 
    -- Get initial player position and set up light source
    player.body:setPosition(checkpointX,checkpointY)
@@ -617,18 +598,17 @@ function toCheckpoint()
 
 end
 
-function updatePause(dt)
-    local pX, pY = player.body:getPosition()
+-- function updatePause(dt)
+--     local pX, pY = player.body:getPosition()
 
-    local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
-    updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
+--     local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
+--     updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
 
-    for i = 1, #crystals, 1 do
-        local xCrystal, yCrystal = crystals[i].body:getPosition()
-        local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
-        updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
-    end
+--     for i = 1, #crystals, 1 do
+--         local xCrystal, yCrystal = crystals[i].body:getPosition()
+--         local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
+--         updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
+--     end
 
-    updateLightWorld()
-
-end
+--     updateLightWorld()
+-- end

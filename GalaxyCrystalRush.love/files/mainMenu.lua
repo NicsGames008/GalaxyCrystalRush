@@ -13,12 +13,11 @@ local changed = false
 
 
 function loadMainMenu()
-font = love.graphics.newFont(32)
-table.insert(buttons, newButton("Start Game", startGame))
-table.insert(buttons, newButton("Exit", exit))
-table.insert(pauseButtons, newButton("Resume", resume))
-table.insert(pauseButtons, newButton("Main Menu", menu))
-
+    font = love.graphics.newFont(32)
+    table.insert(buttons, newButton("Start Game", startGame))
+    table.insert(buttons, newButton("Exit", exit))
+    table.insert(pauseButtons, newButton("Resume", resume))
+    table.insert(pauseButtons, newButton("Main Menu", menu))
 end
 
 
