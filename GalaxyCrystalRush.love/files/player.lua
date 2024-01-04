@@ -32,6 +32,7 @@ function createPlayer(world, anim8)
     player.fixture:setUserData(({object = player,type = "player", index = i})) 
     player.checkpointX = 0
     player.checkpointY = 0
+    player.onground = false
 
     -- Return the created player object
     return player

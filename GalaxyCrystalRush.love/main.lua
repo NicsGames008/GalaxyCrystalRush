@@ -94,7 +94,7 @@ function love.keypressed(key)
     if state == STATE_GAMEPLAY then
 
         -- Check if the space key is pressed and certain conditions are met
-        if key == "space" and cheat == false and wallJump == false and canJump then
+        if key == "space" and cheat == false and wallJump == false and canJump and player.onground then
             -- Check jump conditions and apply linear impulse if allowed
             local jumpForce = vector2.new(0, -jumpf)
             player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
@@ -119,6 +119,8 @@ function love.keypressed(key)
                 jumpForceX = 1000
                 player.body:applyLinearImpulse(jumpForceX, jumpForceY)
             end
+            sound.jump:play()
+
                 
             -- Limit the maximum velocity after applying the wall jump impulse
             local maxVelocityX = 800 
@@ -626,4 +628,7 @@ function updatePause(dt)
         local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
         updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
     end
+
+    updateLightWorld()
+
 end
