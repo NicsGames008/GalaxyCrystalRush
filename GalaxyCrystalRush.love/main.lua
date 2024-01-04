@@ -381,7 +381,7 @@ function updateGame(dt)
 
     -- Get player position and adjust camera to follow player with an offset
     local pX, pY = player.body:getPosition()
-    camera:follow(pX - 900, pY - 1200)
+    camera:follow(pX - 900, pY - 1400)
 
     -- Iterate through enemies and update their movement if they are not killed
     enemyMove(dt, enemies, enemyBarriers)
