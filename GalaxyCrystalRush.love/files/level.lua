@@ -7,6 +7,9 @@ local void
 local enemyBarrier
 local barrier
 local finish
+local image = love.graphics.newImage("sprites/rock-6.png")
+local backgroundX = 0
+local backgroundSpeed = 20
 
 -- Draw the layers from tiled
 function DrawLevel(map)
@@ -17,6 +20,18 @@ function DrawLevel(map)
     map:drawLayer(map.layers["Purple crystals"])
     map:drawLayer(map.layers["Blue crystal"])
     map:drawLayer(map.layers["Moving platform/ Spikes"])
+end
+
+function drawBackground()
+    -- Draw background
+    love.graphics.draw(image, backgroundX, 0, nil, 1.3, 1.3)
+end
+
+function updateBackground(dt, player)
+    -- Background movement
+    if player.hasMoved then
+        backgroundX = backgroundX - player.direction * backgroundSpeed * dt
+    end
 end
 
 -- Load ground layer

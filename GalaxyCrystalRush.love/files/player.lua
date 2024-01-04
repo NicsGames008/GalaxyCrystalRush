@@ -15,6 +15,8 @@ function CreatePlayer(world, anim8)
     player.body:setFixedRotation(true) 
     player.speed = 2000
     player.jumpForce = -400
+    player.hasMoved = false
+    player.direction = 0
     player.fixture:setUserData(({object = player,type = "player", index = i})) 
     player.spriteSheet = love.graphics.newImage("sprites/Sprite-0001-Sheet.png")
     player.gird = anim8.newGrid( 64, 64, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
@@ -41,12 +43,16 @@ function UpdatePlayer(dt, sound)
 
         if love.keyboard.isDown("left") then    
             player.body:applyForce(-player.speed, 0)
+            player.hasMoved = true
+            player.direction = -1
             if player.onground then                
                 player.anim = player.animations.walikingLeft
                 sound.walking:play()
             end
         elseif love.keyboard.isDown("right") then
             player.body:applyForce(player.speed, 0)
+            player.hasMoved = true
+            player.direction = 1
             if player.onground then                
                 player.anim = player.animations.walikingRight
                 sound.walking:play()
@@ -55,8 +61,7 @@ function UpdatePlayer(dt, sound)
             player.anim = player.animations.idle    
             local vx, vy = player.body:getLinearVelocity()
             player.body:applyForce(-vx * forceMultiplier, -vy * forceMultiplier)
-        else
-            player.anim = player.animations.idle
+            player.hasMoved = false
         end    
     
     player.anim:update(dt)
