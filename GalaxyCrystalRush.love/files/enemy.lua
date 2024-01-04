@@ -52,7 +52,7 @@ function enemyMove(dt, enemies, enemyBarriers)
     for _, enemy in ipairs(enemies) do
         if not enemy.killed then
             if not enemy.speed then
-                enemy.speed = 15
+                enemy.speed = 100
             end
 
             local enemyX, enemyY = enemy.body:getPosition()

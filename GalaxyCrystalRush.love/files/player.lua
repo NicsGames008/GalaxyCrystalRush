@@ -1,7 +1,7 @@
 require "files/vector2"
 
 -- Initialize player variable
-local player
+
 
 -- Function to create a player object in the game world
 function createPlayer(world, anim8)
@@ -29,13 +29,16 @@ function createPlayer(world, anim8)
 
 
     player.anim = player.animations.idle
+    player.fixture:setUserData(({object = player,type = "player", index = i})) 
+    player.checkpointX = 0
+    player.checkpointY = 0
 
     -- Return the created player object
     return player
 end
 
 -- Function to update the player's position and state
-function updatePlayer(dt, sound)
+function UpdatePlayer(dt, ground, wall, player)
     -- Apply forces based on keyboard input for horizontal movement
     local forceMultiplier = 25 -- Adjust this value to control how quickly the player stops
 
