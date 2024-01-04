@@ -1,9 +1,9 @@
-local sti = require"libraries/sti"
+local sti = require "libraries/sti"
 local Camera = require "libraries/Camera"
 local anim8 = require("libraries.anim8")
-require"files/enemy"
-require"files/player"
-require"files/level"
+require "files/enemy"
+require "files/player"
+require "files/level"
 require "files/light"
 require "files/crystal"
 local STATE_MAIN_MENU = 0
@@ -23,23 +23,23 @@ local grounds = {}
 local walls = {}
 local spikes = {}
 local voids = {}
-local barriers ={}
+local barriers = {}
 local crystals = {}
 local wallJump = false
 local brightLevel = true
 local lightPlayer
 local lightCrystal = {}
-local enemyBarriers =  {}
+local enemyBarriers = {}
 local jumpf = 1500
 local cheatF = 1000
 local walljumpf = 1500
-local finishs= {}
+local finishs = {}
 local success = false
 local sound = {}
 local onCrystalPercentage = 1
 local onCrystalCount = 0
 
--- load 
+-- load
 function love.load()
     -- Set up window properties
     love.window.setFullscreen(true)
@@ -67,13 +67,13 @@ function love.load()
     sound.crystalDing = love.audio.newSource("sounds/crystalDing_01.mp3", "static")
 
     -- Create player and load various game elements
-    player = CreatePlayer(world, anim8)
+    player = createPlayer(world, anim8)
     grounds = loadGround(world, grounds)
     walls = loadWalls(world, walls)
     spikes = loadSpikes(world, spikes)
     voids = loadVoids(world, voids)
     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
-    crystals, lightCrystal = loadCrystals(world, crystals,  lightCrystal)
+    crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
     enemies = loadEnemies(world, enemies, anim8)
     finishs = createFinish(world, finishs)
 
@@ -106,7 +106,7 @@ function love.update(dt)
     end
 
     -- Update the player's position and handle collisions with ground and walls
-    UpdatePlayer(dt, sound)
+    updatePlayer(dt, sound)
 
     updateBackground(dt, player)
 
@@ -120,7 +120,7 @@ function love.update(dt)
             local xCrystal, yCrystal = crystals[i].body:getPosition()
             local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
             updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
-            
+
             -- Check if the crystal is of type "onCrystal" and update enemies accordingly
             if crystals[i].fixture:getUserData().type == "onCrystal" then
                 checkEnemyDistanceToCrystal(xCrystal, yCrystal)
@@ -136,21 +136,20 @@ function love.update(dt)
         end
     end
 
-    UpdateLightWorld()
+    updateLightWorld()
 end
 
 --draw
 function love.draw()
     -- Check if the player is killed
     if killed then
-        if success then 
+        if success then
             successScreen()
         else
-        -- Display the killed screen
-        killedScreen()
+            -- Display the killed screen
+            killedScreen()
         end
     else
-
         drawBackground()
 
         -- Set up the camera view
@@ -160,7 +159,7 @@ function love.draw()
         love.graphics.setColor(1, 1, 1)
 
         -- Draw the level layout
-        DrawLevel(map)
+        drawLevel(map)
 
         -- Draw enemies on the screen
         drawEnemies(enemies)
@@ -181,7 +180,7 @@ function love.draw()
         -- Release the camera view
         camera:detach()
 
-        drawUI()
+        drawUI(onCrystalPercentage)
     end
 end
 
@@ -198,7 +197,7 @@ function love.keypressed(key)
     end
 
     -- Check if the space key is pressed, cheats are disabled, and wallJump is enabled
-    --The wall jump has a max velocity, so the player does not abuse wall jumping 
+    --The wall jump has a max velocity, so the player does not abuse wall jumping
     if key == "space" and cheat == false and wallJump then
         local jumpForceY = -walljumpf
         local jumpForceX = 0
@@ -211,10 +210,10 @@ function love.keypressed(key)
         end
 
         player.body:applyLinearImpulse(jumpForceX, jumpForceY)
-        
+
         -- Limit the maximum velocity after applying the wall jump impulse
-        local maxVelocityX = 800 
-        local maxVelocityY = 900 
+        local maxVelocityX = 800
+        local maxVelocityY = 900
         local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
 
         -- Limiting the velocity in the x-direction
@@ -229,7 +228,6 @@ function love.keypressed(key)
 
 
         sound.jump:play()
-
     end
 
     -----------------------------------------------------------------------------------------------------
@@ -259,7 +257,6 @@ function love.keypressed(key)
         brightLevel = not brightLevel
     end
     ------------------------------------------------------------------------------------------------------------------------
-
 end
 
 -- All of our Collision logic
@@ -292,8 +289,8 @@ function BeginContact(fixtureA, fixtureB, contact)
         end
     end
     if fixtureA:getUserData().type == "finish" and fixtureB:getUserData().type == "player" then
-            killed = true
-            success = true
+        killed = true
+        success = true
     end
 
     -- Check if the player collides with a wall and handle accordingly
@@ -320,7 +317,6 @@ function BeginContact(fixtureA, fixtureB, contact)
 
     -- Check if the player collides with an offCrystal and handle accordingly
     if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" and brightLevel then
-
         local light = lightCrystal[fixtureA:getUserData().index]
         light:Remove()
 
@@ -333,7 +329,7 @@ function BeginContact(fixtureA, fixtureB, contact)
 
         onCrystalCount = onCrystalCount + 1
 
-        onCrystalPercentage = math.floor((onCrystalCount / #lightCrystal)*100)
+        onCrystalPercentage = math.floor((onCrystalCount / #lightCrystal) * 100)
 
         sound.crystalDing:play()
     end
@@ -349,67 +345,13 @@ function EndContact(fixtureA, fixtureB, contact)
         wallJump = false
     end
     if fixtureA:getUserData().type == "ground" and fixtureB:getUserData().type == "player" then
-       player.onground = false
+        player.onground = false
     end
 end
 
-
- -- Helper function to get the sign of a number
+-- Helper function to get the sign of a number
 function math.sign(x)
     return x > 0 and 1 or x < 0 and -1 or 0
-end
-
-function drawUI()
-    -- Load the crystal frames image
-    local crystalFramesImage = love.graphics.newImage("sprites/CrystalFrames.png")
-
-    -- Create an array (table) to store quads for crystal frames
-    local crystalQuads = {}
-
-    -- Calculate the number of quads in each row and column
-    local rows = crystalFramesImage:getHeight() / 32
-    local columns = crystalFramesImage:getWidth() / 64
-
-    -- Populate the quads array
-    for row = 1, rows do
-        for col = 1, columns do
-            local quad = love.graphics.newQuad((col - 1) * 64, (row - 1) * 32, 64, 32, crystalFramesImage:getDimensions())
-            table.insert(crystalQuads, quad)
-        end
-    end
-
-    -- Makes the inicial frame to the 0%
-    local currentCrystalFrame = 1
-
-    if onCrystalPercentage >= 10 and onCrystalPercentage < 19 then
-        currentCrystalFrame = 2
-    elseif onCrystalPercentage >= 20 and onCrystalPercentage < 29 then
-        currentCrystalFrame = 3 
-    elseif onCrystalPercentage >= 30 and onCrystalPercentage < 39 then
-        currentCrystalFrame = 4
-    elseif onCrystalPercentage >= 40 and onCrystalPercentage < 49 then
-        currentCrystalFrame = 5
-    elseif onCrystalPercentage >= 50 and onCrystalPercentage < 59 then
-        currentCrystalFrame = 6
-    elseif onCrystalPercentage >= 60 and onCrystalPercentage < 69 then
-        currentCrystalFrame = 7       
-    elseif onCrystalPercentage >= 70 and onCrystalPercentage < 74 then
-        currentCrystalFrame = 8
-    elseif onCrystalPercentage >= 75 and onCrystalPercentage < 93 then
-        currentCrystalFrame = 9
-    elseif onCrystalPercentage >= 100 and onCrystalPercentage < 1000 then
-        currentCrystalFrame = 10
-    end
-
-    -- Calculate the X-coordinate for drawing at the top-right corner + a 15 px offsite
-    local windowWidth = love.graphics.getWidth()
-    local imageWidth = 175
-    local x = windowWidth - imageWidth 
-
-    -- Set color to white (no tint)
-    love.graphics.setColor(1, 1, 1)
-    -- Draw the selected crystal frame scaled at the top-right corner
-    love.graphics.draw(crystalFramesImage, crystalQuads[currentCrystalFrame], x, 15, nil, 2.5, 2.5)
 end
 
 -- Function to check the distance between enemies and a crystal

@@ -8,25 +8,24 @@ local light
 local newLightWorld = LightWorld:new()
 
 function loadLight(radius, xPosition, yPosition)
-
     -- Create a light on the light world, with radius 300
-    light = Light:new(newLightWorld, radius) 
-    light:SetPosition(xPosition,yPosition, 0.3)
+    light = Light:new(newLightWorld, radius)
+    light:SetPosition(xPosition, yPosition, 0.3)
 
     return light
 end
 
 function drawLight(Width, Height)
     -- Draw the light world with white color
-	newLightWorld:Draw()
+    newLightWorld:Draw()
     newLightWorld:Resize(Width, Height)
 end
 
 function updateLight(dt, xPosition, yPosition, light)
     -- Move the light to the player position with altitude 35
-	light:SetPosition(xPosition, yPosition, 0.3)
+    light:SetPosition(xPosition, yPosition, 0.3)
 end
 
-function UpdateLightWorld()
+function updateLightWorld()
     newLightWorld:Update()
 end
