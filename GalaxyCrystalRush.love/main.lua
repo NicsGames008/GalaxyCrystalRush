@@ -123,7 +123,7 @@ function love.keypressed(key)
         print(player.body:getPosition())
     end
 
-    if key == "escape" then 
+    if key == "escape" and  state == STATE_GAMEPLAY then 
         state = STATE_PAUSE
         text = tostring(state)
 
@@ -293,6 +293,7 @@ function reset()
     checkpointX = -100
     checkpointY = -500
     onCrystalPercentage = 0
+    onCrystalCount = 0 
     world:destroy()
 
 

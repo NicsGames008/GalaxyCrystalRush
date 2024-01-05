@@ -2,7 +2,6 @@ require"/files/button"
 
 local BUTTON_HEIGHT = 64
 
-
 local buttons = {}
 local pauseButtons = {}
 local font = nil
@@ -10,6 +9,7 @@ local STATE_GAMEPLAY = 1
 local STATE_MAIN_MENU = 0
 local state = STATE_MAIN_MENU
 local changed = false
+local buttonImg = love.graphics.newImage("sprites/buttonDesgin.png")
 
 
 function loadMainMenu()
@@ -33,8 +33,8 @@ end
 function drawMainMenu()
     local ww = love.graphics.getWidth()
     local wh = love.graphics.getHeight()
-    local button_width = ww * (1/3)
-    local margin = 16
+    local button_width = ww * (1/7)
+    local margin = 32
     local total_height = (BUTTON_HEIGHT + margin) * #buttons
     local cursor_y = 0
     for i, button in ipairs(buttons) do
@@ -49,14 +49,15 @@ function drawMainMenu()
         end
         button.now = love.mouse.isDown(1)
         if button.now and not button.last and hot then
-         button.fn()
+            button.fn()
         end
         love.graphics.setColor(unpack(color))
-        love.graphics.rectangle("fill", bx,by, button_width, BUTTON_HEIGHT)
+        local btnw = buttonImg:getWidth()
+        love.graphics.draw(buttonImg, (ww * 0.5) - btnw * 0.9 , by, nil, 1.8, 1.8)
 
-        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.setColor(1, 1, 1  , 1)
         local textw = font:getWidth(button.text)
-            texth = font:getHeight(button.text)
+        local texth = font:getHeight(button.text)
         love.graphics.print(button.text, font,(ww * 0.5) - textw * 0.5, by + texth * 0.5)
         cursor_y = cursor_y + (BUTTON_HEIGHT + margin)
     end
@@ -89,38 +90,32 @@ function drawPauseMenu()
          button.fn()
         end
         love.graphics.setColor(unpack(color))
-        love.graphics.rectangle("fill", bx,by, button_width, BUTTON_HEIGHT)
+        local btnw = buttonImg:getWidth()
+        love.graphics.draw(buttonImg, (ww * 0.5) - btnw * 0.9 , by, nil, 1.8, 1.8)
 
-        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.setColor(1, 1, 1, 1)
         local textw = font:getWidth(button.text)
-            texth = font:getHeight(button.text)
+        local texth = font:getHeight(button.text)
         love.graphics.print(button.text, font,(ww * 0.5) - textw * 0.5, by + texth * 0.5)
         cursor_y = cursor_y + (BUTTON_HEIGHT + margin)
     end
 end
 
-
 function startGame()
     state = STATE_GAMEPLAY
     changed = true
-
 end
 
 function exit()
     love.event.quit()
 end
 
-
-
 function resume()
     state = STATE_GAMEPLAY
-    changed = true
-
- 
+    changed = true 
  end
- 
- function menu()
-     state = STATE_MAIN_MENU
-     changed = true
 
+ function menu()
+    state = STATE_MAIN_MENU
+    changed = true
  end
