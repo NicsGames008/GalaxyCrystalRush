@@ -59,6 +59,12 @@ function loadGame()
    local playerX, playerY = player.body:getPosition()
    local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
+   music = love.audio.newSource("sounds/sound.mp3", "static")
+
+
+    -- Play the music in a loop
+    music:setLooping(true)
+    love.audio.play(music)
 
    return sound, world, lightPlayer, lightCrystal, player, crystals
 end

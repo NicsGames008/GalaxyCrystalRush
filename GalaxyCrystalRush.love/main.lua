@@ -229,8 +229,11 @@ function BeginContact(fixtureA, fixtureB, contact)
     end
 
     -- if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" then
-    --     local checkpointX,CheckpointY = fixtureA.getUserData().object:getPosition()       
+
+    --     local checkpointX = fixtureA:getUserData().body:getX()   
+    --     local checkpointY = fixtureA:getUserData().body:getY()   
     -- end
+
 
 end
 
