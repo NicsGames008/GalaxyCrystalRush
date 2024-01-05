@@ -1,5 +1,8 @@
 require "files/vector2"
-local jumpf = 1500
+
+-- Add these variables at the top of your file or in the appropriate scope
+local jumpTimerMax = 0.5  -- Adjust this value based on your jump animation duration
+local jumpTimer = 0
 
 -- Function to create a player object in the game world
 function createPlayer(world, anim8)
@@ -29,7 +32,7 @@ function createPlayer(world, anim8)
     player.animations.walikingRight = anim8.newAnimation(player.gird('1-7', 2), 0.09)
     player.animations.walikingLeft = anim8.newAnimation(player.gird('1-7', 3), 0.09)
     player.animations.jumpLeft = anim8.newAnimation(player.gird('1-7', 4), 0.09)
-    player.animations.jumpRight = anim8.newAnimation(player.gird('1-7', 5), 0.09)
+    player.animations.jumpRight = anim8.newAnimation(player.gird('7-1', 5), 0.09)
     
     player.anim = player.animations.idle
 
@@ -42,6 +45,11 @@ function updatePlayer(dt, sound)
     -- Apply forces based on keyboard input for horizontal movement
     local forceMultiplier = 25 -- Adjust this value to control how quickly the player stops
 
+    if jumpTimer > 0 then
+        print("a")
+        player.anim = player.animations.jumpLeft
+    end
+    
     -- Check if the player is on the ground before applying forces
     if love.keyboard.isDown("left") then
         player.body:applyForce(-player.speed, 0)
@@ -64,10 +72,14 @@ function updatePlayer(dt, sound)
         local vx, vy = player.body:getLinearVelocity()
         player.body:applyForce(-vx * forceMultiplier, -vy * forceMultiplier)
         player.hasMoved = false
+    elseif jumpTimer > 0 then
+        print("a")
+        player.anim = player.animations.jumpRight
     else
         player.anim = player.animations.idle
     end
-
+    jumpTimer = math.max(0, jumpTimer - dt)
+    
     player.anim:update(dt)
 end
 
@@ -90,9 +102,9 @@ function keyPressed(key, cheat, wallJump, player, sound, canJump, released, left
         --player.anim = player.animations.idle
         --print(player.direction  )
 
-    print(player.anim)
-
         sound.jump:play()
+
+        jumpTimer = jumpTimerMax
     end
 
     if key == "space" and cheat == false and wallJump then
@@ -128,7 +140,6 @@ function keyPressed(key, cheat, wallJump, player, sound, canJump, released, left
 
         canJump = true
         released = false
-
     end
     return player
 end
