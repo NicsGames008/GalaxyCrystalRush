@@ -143,9 +143,7 @@ function drawGame(killed, success, enemies, finishs, brightLevel,onCrystalPercen
 
         -- Draw the player at their current position
         --local playerX, playerY = player.body:getPosition()
-        drawPlayer(playerX, playerY)
-
-        --drawBoost()
+        drawPlayer()
 
         --draw the finsih line
         drawFinish(finishs)

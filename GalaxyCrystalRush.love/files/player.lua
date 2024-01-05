@@ -28,6 +28,9 @@ function createPlayer(world, anim8)
     player.animations.idle = anim8.newAnimation(player.gird('1-7', 1), 0.09)
     player.animations.walikingRight = anim8.newAnimation(player.gird('1-7', 2), 0.09)
     player.animations.walikingLeft = anim8.newAnimation(player.gird('1-7', 3), 0.09)
+    player.animations.jumpLeft = anim8.newAnimation(player.gird('1-7', 4), 0.09)
+    player.animations.jumpRight = anim8.newAnimation(player.gird('1-7', 5), 0.09)
+    
     player.anim = player.animations.idle
 
     -- Return the created player object
@@ -69,7 +72,7 @@ function updatePlayer(dt, sound)
 end
 
 -- Function to draw the player on the screen
-function drawPlayer(x, y)
+function drawPlayer()
     player.anim:draw(player.spriteSheet, player.body:getX(), player.body:getY(), nil, 3, 3, 30, 45)
 end
 
@@ -79,7 +82,16 @@ function keyPressed(key, cheat, wallJump, player, sound, canJump, released, left
         -- Check jump conditions and apply linear impulse if allowed
         local jumpForce = vector2.new(0, -player.jumpForce)
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
-        player.anim = player.animations.idle
+        -- if player.direction > 0 then
+        --     player.anim = player.animations.jumpLeft
+        -- elseif player.direction < 0 then
+        -- end
+        player.anim = player.animations.jumpRight
+        --player.anim = player.animations.idle
+        --print(player.direction  )
+
+    print(player.anim)
+
         sound.jump:play()
     end
 
@@ -116,5 +128,7 @@ function keyPressed(key, cheat, wallJump, player, sound, canJump, released, left
 
         canJump = true
         released = false
+
     end
+    return player
 end

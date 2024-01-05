@@ -88,7 +88,7 @@ end
 
 function love.keypressed(key)
     if state == STATE_GAMEPLAY then
-        keyPressed(key, cheat, wallJump, player, sound, canJump, released, leftWallJump, rightWallJump)
+        player = keyPressed(key, cheat, wallJump, player, sound, canJump, released, leftWallJump, rightWallJump)
     end
 
     -----------------------------------------------------------------------------------------------------
