@@ -60,9 +60,106 @@ function loadGame()
    local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
 
-   return sound, world, lightPlayer, lightCrystal, player
+   return sound, world, lightPlayer, lightCrystal, player, crystals
 end
 
+function updateGame(dt, world, player, enemies, crystals, enemyBarriers, camera, lightPlayer, lightCrystal,brightLevel)
+    -- Update physics world and camera
+    world:update(dt)
+    camera:update(dt)
+
+    -- Get player position and adjust camera to follow player with an offset
+    local pX, pY = player.body:getPosition()
+    camera:follow(pX - 900, pY - 1400)
+
+    -- Iterate through enemies and update their movement if they are not killed
+    enemyMove(dt, enemies, enemyBarriers)
+
+    -- Update the player's position and handle collisions with ground and walls
+    updatePlayer(dt, sound)
+
+    updateBackground(dt, player)
+
+    if brightLevel then    
+        -- Update the light position for the player
+        local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
+        updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
+
+        -- Iterate through crystals, update their light positions, and check enemy distance to crystals
+        for i = 1, #crystals, 1 do
+            local xCrystal, yCrystal = crystals[i].body:getPosition()
+            local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
+            updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
+            
+            -- Check if the crystal is of type "onCrystal" and update enemies accordingly
+            if crystals[i].fixture:getUserData().type == "onCrystal" then
+                checkEnemyDistanceToCrystal(xCrystal, yCrystal, enemies)
+            end
+        end
+    end
+
+    -- Remove killed enemies from the table and destroy their bodies
+    for i, enemy in ipairs(enemies) do
+        if enemy.killed then
+            table.remove(enemies, i)
+            enemy.body:destroy()
+        end
+    end
+
+    updateLightWorld()
+
+end
+
+function drawGame(killed, success, enemies, finishs, brightLevel,onCrystalPercentage)
+
+    -- Check if the player is killed
+    if killed then
+        if success then 
+            successScreen()
+        else
+        -- Display the killed screen
+        killedScreen()
+        end
+    else
+        drawBackground()
+
+        -- Set up the camera view
+        camera:attach()
+
+        -- Set color to white and draw the Box2D physics objects from the map
+        love.graphics.setColor(1, 1, 1)
+
+        -- Draw the level layout
+        drawLevel(map)
+
+        -- Draw enemies on the screen
+        drawEnemies(enemies)
+
+        -- Draw the player at their current position
+        --local playerX, playerY = player.body:getPosition()
+        drawPlayer(playerX, playerY)
+
+        --drawBoost()
+
+        --draw the finsih line
+        drawFinish(finishs)
+
+        -- If brightLevel is true, draw the lighting effects
+        if brightLevel then
+            local Width = love.graphics:getWidth()
+            local Height = love.graphics:getHeight()
+            drawLight(Width, Height)
+        end
+
+        -- Release the camera view
+        camera:detach()
+
+        -- Draw the camera view
+        camera:draw()
+        
+        drawUI(onCrystalPercentage)
+    end
+end
 
 function updatePause(dt, player, lightPlayer, camera, crystals, lightCrystal)
     local pX, pY = player.body:getPosition()

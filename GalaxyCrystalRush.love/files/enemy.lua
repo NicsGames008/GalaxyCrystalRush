@@ -1,9 +1,5 @@
 require "files/vector2"  
 
--- Load enemy layer
-
-local enemy
-
 function loadEnemies(world, enemies, anim8)
     if map.layers['Enemies'] then
 
@@ -83,6 +79,30 @@ function enemyMove(dt, enemies, enemyBarriers)
             end
 
             enemy.anim:update(dt)
+        end
+    end
+end
+
+-- Function to check the distance between enemies and a crystal
+function checkEnemyDistanceToCrystal(crystalX, crystalY, enemies)
+    -- Create a vector representing the position of the crystal
+    local crystalPosition = vector2.new(crystalX, crystalY)
+
+    -- Iterate through each enemy in the 'enemies' table
+    for _, enemy in ipairs(enemies) do
+        -- Get the position of the current enemy
+        local enemyPosition = vector2.new(enemy.body:getX(), enemy.body:getY())
+
+        -- Calculate the vector between the crystal and the enemy
+        local distanceVector = vector2.sub(crystalPosition, enemyPosition)
+
+        -- Calculate the distance between the crystal and the enemy
+        local distance = vector2.magnitude(distanceVector)
+
+        -- Check if the distance is within a certain range (20000 units in this case)
+        if distance <= 2500 then
+            -- Mark the enemy as killed
+            enemy.killed = true
         end
     end
 end

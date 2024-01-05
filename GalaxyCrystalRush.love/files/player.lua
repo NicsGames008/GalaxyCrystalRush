@@ -1,7 +1,5 @@
 require "files/vector2"
-
--- Initialize player variable
-
+local jumpf = 1500
 
 -- Function to create a player object in the game world
 function createPlayer(world, anim8)
@@ -16,7 +14,8 @@ function createPlayer(world, anim8)
     player.fixture:setUserData(({ object = player, type = "player", index = i }))
 
     player.speed = 2000
-    player.jumpForce = -400
+    player.jumpForce = 1500
+    player.walljumpf = 1500
     player.hasMoved = false
     player.direction = 0
     player.checkpointX = 0
@@ -72,4 +71,50 @@ end
 -- Function to draw the player on the screen
 function drawPlayer(x, y)
     player.anim:draw(player.spriteSheet, player.body:getX(), player.body:getY(), nil, 3, 3, 30, 45)
+end
+
+function keyPressed(key, cheat, wallJump, player, sound, canJump, released, leftWallJump, rightWallJump)
+    -- Check if the space key is pressed and certain conditions are met
+    if key == "space" and cheat == false and wallJump == false and player.onground then
+        -- Check jump conditions and apply linear impulse if allowed
+        local jumpForce = vector2.new(0, -player.jumpForce)
+        player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
+        player.anim = player.animations.idle
+        sound.jump:play()
+    end
+
+    if key == "space" and cheat == false and wallJump then
+
+        if canJump and released and leftWallJump then
+            local jumpForceY = -player.walljumpf
+            local jumpForceX = 0
+            jumpForceX = -1000
+            player.body:applyLinearImpulse(jumpForceX, jumpForceY)
+        elseif canJump and released and rightWallJump then
+            local jumpForceY = -player.walljumpf
+            local jumpForceX = 0
+            jumpForceX = 1000
+            player.body:applyLinearImpulse(jumpForceX, jumpForceY)
+        end
+        sound.jump:play()
+
+            
+        -- Limit the maximum velocity after applying the wall jump impulse
+        local maxVelocityX = 800 
+        local maxVelocityY = 900 
+        local currentVelocityX, currentVelocityY = player.body:getLinearVelocity()
+
+        -- Limiting the velocity in the x-direction
+        if math.abs(currentVelocityX) > maxVelocityX then
+            player.body:setLinearVelocity(maxVelocityX * math.sign(currentVelocityX), currentVelocityY)
+        end
+
+        -- Limiting the velocity in the y-direction
+        if math.abs(currentVelocityY) > maxVelocityY then
+            player.body:setLinearVelocity(currentVelocityX, maxVelocityY * math.sign(currentVelocityY))
+        end
+
+        canJump = true
+        released = false
+    end
 end
