@@ -72,7 +72,7 @@ function drawPauseMenu()
     -- Reset color to default
     love.graphics.setColor(1, 1, 1)
     local button_width = ww * (1/3)
-    local margin = 16
+    local margin = 32
     local total_height = (BUTTON_HEIGHT + margin) * #buttons
     local cursor_y = 0
     for i, button in ipairs(pauseButtons) do
