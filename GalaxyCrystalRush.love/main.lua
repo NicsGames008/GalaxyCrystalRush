@@ -6,8 +6,6 @@ require "files/light"
 require "files/crystal"
 require "files/mainMenu"
 require "files/gamePlay"
-require "screens"
-require "logic"
 
 local STATE_MAIN_MENU = 0
 local STATE_GAMEPLAY = 1
