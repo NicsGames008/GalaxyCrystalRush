@@ -7,7 +7,10 @@ local void
 local enemyBarrier
 local barrier
 local finish
-local image = love.graphics.newImage("sprites/rock-6.png")
+local background = love.graphics.newImage("sprites/Untitled-3.png")
+local plantesBg = love.graphics.newImage("sprites/Untitled-2.png")
+local deadImage = love.graphics.newImage("map/deadScreen.png")
+local winImage = love.graphics.newImage("map/win.png")
 local backgroundX = 0
 local backgroundSpeed = 20
 
@@ -21,12 +24,15 @@ function drawLevel(map)
 end
 
 function drawBackground()
+
+    love.graphics.draw(background, 0, 0, nil, 1.3, 1.3)
+
     -- Draw background
-    love.graphics.draw(image, backgroundX, 0, nil, 1.3, 1.3)
+    love.graphics.draw(plantesBg, backgroundX, 0, nil, 1.3, 1.3)
     love.graphics.setColor(0, 0, 0, 0.5)
 
     -- Draw a black rectangle over the image
-    love.graphics.rectangle("fill", backgroundX, 0, image:getWidth() * 1.3, image:getHeight() * 1.3)
+    love.graphics.rectangle("fill", backgroundX, 0, plantesBg:getWidth() * 1.3, plantesBg:getHeight() * 1.3)
 
     -- Reset the color to white
     love.graphics.setColor(1, 1, 1, 1)
@@ -252,16 +258,13 @@ end
 
 -- Function to display the "Game Over" screen
 function killedScreen()
-    local image = love.graphics.newImage("map/deadScreen.png")
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.draw(image, -100, 0)
-
+    deadImage.graphics.setColor(1, 1, 1)
+    deadImage.graphics.draw(deadImage, -100, 0)
 end
 
 
 function successScreen()
     -- Get the width and height of the screen
-    local image = love.graphics.newImage("map/win.png")
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.draw(image, -100, 0)
+    winImage.graphics.setColor(1, 1, 1)
+    winImage.graphics.draw(winImage, -100, 0)
 end
