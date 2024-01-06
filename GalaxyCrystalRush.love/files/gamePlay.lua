@@ -14,6 +14,8 @@ local crystals = {}
 local lightCrystal = {}
 local enemies = {}
 local finishs = {}
+local Width = love.graphics:getWidth()
+local Height = love.graphics:getHeight()
 
 
 function loadGame()
@@ -142,7 +144,6 @@ function drawGame(killed, success, enemies, finishs, brightLevel,onCrystalPercen
         drawEnemies(enemies)
 
         -- Draw the player at their current position
-        --local playerX, playerY = player.body:getPosition()
         drawPlayer()
 
         --draw the finsih line
@@ -150,8 +151,6 @@ function drawGame(killed, success, enemies, finishs, brightLevel,onCrystalPercen
 
         -- If brightLevel is true, draw the lighting effects
         if brightLevel then
-            local Width = love.graphics:getWidth()
-            local Height = love.graphics:getHeight()
             drawLight(Width, Height)
         end
 
@@ -161,21 +160,35 @@ function drawGame(killed, success, enemies, finishs, brightLevel,onCrystalPercen
         -- Draw the camera view
         camera:draw()
         
+        --call the funciton that draws the UI
         drawUI(onCrystalPercentage)
     end
 end
 
+-- Function to update game elements during pause
 function updatePause(dt, player, lightPlayer, camera, crystals, lightCrystal)
+    -- Get the current position of the player
     local pX, pY = player.body:getPosition()
 
+    -- Convert player's position to camera coordinates
     local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
+    
+    -- Update the player's light source based on the camera coordinates
     updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
 
+    -- Iterate over each crystal in the 'crystals' table
     for i = 1, #crystals, 1 do
+        -- Get the position of the current crystal
         local xCrystal, yCrystal = crystals[i].body:getPosition()
+        
+        -- Convert crystal's position to camera coordinates
         local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
+        
+        -- Update the light source for the current crystal based on camera coordinates
         updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
     end
     
+    -- Update the global light source in the game world
     updateLightWorld()
 end
+

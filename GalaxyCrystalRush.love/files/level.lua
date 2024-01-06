@@ -105,13 +105,10 @@ function loadGround(world, grounds)
 end
 
 -- Load wall layer
-
-
 function loadWalls(world, walls)
     if map.layers['Walls'] then
         for i, obj in pairs(map.layers['Walls'].objects) do
             wall = {}
-
 
             if obj.shape == "rectangle" then
                 wall.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
@@ -144,12 +141,12 @@ function loadWalls(world, walls)
                 table.insert(walls, wall)
             end
         end
+
         return walls
     end
 end
 
 -- Load spike layer
-
 function loadSpikes(world, spikes)
     if map.layers['Death'] then
         for i, obj in pairs(map.layers['Death'].objects) do
@@ -164,12 +161,12 @@ function loadSpikes(world, spikes)
                 table.insert(spikes, spike)
             end
         end
+
         return spikes
     end
 end
 
 -- Load void layer
-
 function loadVoids(world, voids)
     if map.layers['Portal'] then
         for i, obj in pairs(map.layers['Portal'].objects) do
@@ -183,13 +180,12 @@ function loadVoids(world, voids)
                 table.insert(voids, void)
             end
         end
-        return voids, void
+
+        return voids
     end
 end
 
 -- Load barrier layer
-
-
 function loadBarriers(world, enemyBarriers, barriers)
     if map.layers['EnemyWall'] then
         for i, obj in pairs(map.layers['EnemyWall'].objects) do
@@ -229,7 +225,6 @@ end
 
 function createFinish(world, finishs)
     finish = {}
-
 
     finish.body = love.physics.newBody(world, 37500, -1820, "static")
     finish.shape = love.physics.newRectangleShape(30, 300)

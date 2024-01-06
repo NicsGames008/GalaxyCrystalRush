@@ -260,42 +260,29 @@ function reset()
     for i, light in pairs(lightCrystal)do    
         light:Remove()
     end
+    --resets all the variables
     enemies = {}
     ground = {}
     killed = false
-    object = "idk"
-    jumpCount = 0
     released = true
     cheat = false
     grounds = {}
     walls = {}
     spikes = {}
     voids = {}
-    wallJump = false
     brightLevel = true
-    text = "false"
     lightCrystal = {}
     barriers ={}
     crystals = {}
     enemyBarriers =  {}
-    jumpf = 1500
     cheatF = 1000
-    walljumpf = 1500
-    boosts = {}
-    boostDuration = 3 
-    boostMaxVelocity = 1000
-    boostTimer = 0
-    isBoostActive = false
     finishs= {}
     success = false
-    leftWallJump = false
-    rightWallJump = false
     checkpointX = -100
     checkpointY = -500
     onCrystalPercentage = 0
     onCrystalCount = 0 
     world:destroy()
-
 
     world = love.physics.newWorld(0, 15 * 64, true)
     world:setCallbacks(BeginContact, EndContact, nil, nil)
@@ -303,8 +290,6 @@ function reset()
     -- Initialize Box2D physics for the map
     map:box2d_init(world)
 
- 
-
     -- Create player and load various game elements
     player = createPlayer(world, anim8)
     grounds = loadGround(world, grounds)
@@ -315,70 +300,67 @@ function reset()
     crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
     enemies = loadEnemies(world, enemies, anim8)
     finishs = createFinish(world, finishs)
-
 
     -- Get initial player position and set up light source
     player.body:setPosition(checkpointX,checkpointY)
-    local playerX, playerY = player.body:getPosition()
-    local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
 end
 
-function toCheckpoint()
-    enemies = {}
-    ground = {}
-    killed = false
-    object = "idk"
-    jumpCount = 0
-    released = true
-    cheat = false
-    grounds = {}
-    walls = {}
-    spikes = {}
-    voids = {}
-    wallJump = false
-    brightLevel = true
-    text = "false"
-    lightCrystal = {}
-    barriers ={}
-    crystals = {}
-    enemyBarriers =  {}
-    jumpf = 1500
-    cheatF = 1000
-    walljumpf = 1500
-    boosts = {}
-    boostDuration = 3 
-    boostMaxVelocity = 1000
-    boostTimer = 0
-    isBoostActive = false
-    finishs= {}
-    success = false
-    leftWallJump = false
-    rightWallJump = false
-    onCrystalPercentage = 0
-    world:destroy()
+-- function toCheckpoint()
+--     enemies = {}
+--     ground = {}
+--     killed = false
+--     object = "idk"
+--     jumpCount = 0
+--     released = true
+--     cheat = false
+--     grounds = {}
+--     walls = {}
+--     spikes = {}
+--     voids = {}
+--     wallJump = false
+--     brightLevel = true
+--     text = "false"
+--     lightCrystal = {}
+--     barriers ={}
+--     crystals = {}
+--     enemyBarriers =  {}
+--     jumpf = 1500
+--     cheatF = 1000
+--     walljumpf = 1500
+--     boosts = {}
+--     boostDuration = 3 
+--     boostMaxVelocity = 1000
+--     boostTimer = 0
+--     isBoostActive = false
+--     finishs= {}
+--     success = false
+--     leftWallJump = false
+--     rightWallJump = false
+--     onCrystalPercentage = 0
+--     world:destroy()
 
 
-    world = love.physics.newWorld(0, 15 * 64, true)
-   world:setCallbacks(BeginContact, EndContact, nil, nil)
+--     world = love.physics.newWorld(0, 15 * 64, true)
+--    world:setCallbacks(BeginContact, EndContact, nil, nil)
 
-   -- Initialize Box2D physics for the map
-   map:box2d_init(world)
+--    -- Initialize Box2D physics for the map
+--    map:box2d_init(world)
 
-    -- Create player and load various game elements
-    player = createPlayer(world, anim8)
-    grounds = loadGround(world, grounds)
-    walls = loadWalls(world, walls)
-    spikes = loadSpikes(world, spikes)
-    voids = loadVoids(world, voids)
-    enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
-    crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
-    enemies = loadEnemies(world, enemies, anim8)
-    finishs = createFinish(world, finishs)
+--     -- Create player and load various game elements
+--     player = createPlayer(world, anim8)
+--     grounds = loadGround(world, grounds)
+--     walls = loadWalls(world, walls)
+--     spikes = loadSpikes(world, spikes)
+--     voids = loadVoids(world, voids)
+--     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
+--     crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
+--     enemies = loadEnemies(world, enemies, anim8)
+--     finishs = createFinish(world, finishs)
 
-   -- Get initial player position and set up light source
-   player.body:setPosition(checkpointX,checkpointY)
-   local playerX, playerY = player.body:getPosition()
-   local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
-   lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
+--    -- Get initial player position and set up light source
+--    player.body:setPosition(checkpointX,checkpointY)
+--    local playerX, playerY = player.body:getPosition()
+--    local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
+--    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
 
-end
+-- end
