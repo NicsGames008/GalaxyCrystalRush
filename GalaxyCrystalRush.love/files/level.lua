@@ -23,6 +23,14 @@ end
 function drawBackground()
     -- Draw background
     love.graphics.draw(image, backgroundX, 0, nil, 1.3, 1.3)
+    love.graphics.setColor(0, 0, 0, 0.5)
+
+    -- Draw a black rectangle over the image
+    love.graphics.rectangle("fill", backgroundX, 0, image:getWidth() * 1.3, image:getHeight() * 1.3)
+
+    -- Reset the color to white
+    love.graphics.setColor(1, 1, 1, 1)
+
 end
 
 function updateBackground(dt, player)
