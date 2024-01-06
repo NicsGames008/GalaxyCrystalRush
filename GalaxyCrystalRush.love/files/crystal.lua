@@ -42,8 +42,6 @@ function loadCheckpointCrystals(world, checkpoints, lightCrystal)
                 checkpoint.fixture:setSensor(true)
                 checkpoint.fixture:setUserData(({object = checkpoint,type = "checkpoint", index = i}))
 
-                print(obj.id)
-
                 table.insert(checkpoints, checkpoint)
             end
 
