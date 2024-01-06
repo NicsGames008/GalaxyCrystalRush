@@ -1,9 +1,9 @@
 require "files/vector2"  
 
 function loadEnemies(world, enemies, anim8)
-    if map.layers['Enemies'] then
+    if map.layers['Enemy'] then
 
-        for i, obj in pairs(map.layers['Enemies'].objects) do
+        for i, obj in pairs(map.layers['Enemy'].objects) do
             local enemy = {}
 
             if obj.shape == "rectangle" then
