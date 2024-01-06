@@ -13,13 +13,11 @@ local backgroundSpeed = 20
 
 -- Draw the layers from tiled
 function drawLevel(map)
-    map:drawLayer(map.layers["Ground and walls"])
-    map:drawLayer(map.layers["Spikes"])
-    map:drawLayer(map.layers["Background"])
+    map:drawLayer(map.layers["Map"])
+    map:drawLayer(map.layers["Crystals"])
+    map:drawLayer(map.layers["Backvoid"])
     map:drawLayer(map.layers["Void"])
-    map:drawLayer(map.layers["Purple crystals"])
-    map:drawLayer(map.layers["Blue crystal"])
-    map:drawLayer(map.layers["Moving platform/ Spikes"])
+
 end
 
 function drawBackground()
@@ -110,8 +108,8 @@ end
 
 
 function loadWalls(world, walls)
-    if map.layers['Wall'] then
-        for i, obj in pairs(map.layers['Wall'].objects) do
+    if map.layers['Walls'] then
+        for i, obj in pairs(map.layers['Walls'].objects) do
             wall = {}
 
 
@@ -153,8 +151,8 @@ end
 -- Load spike layer
 
 function loadSpikes(world, spikes)
-    if map.layers['Spikes'] then
-        for i, obj in pairs(map.layers['Spikes'].objects) do
+    if map.layers['Death'] then
+        for i, obj in pairs(map.layers['Death'].objects) do
             spike = {}
 
             if obj.shape == "rectangle" then
@@ -193,8 +191,8 @@ end
 
 
 function loadBarriers(world, enemyBarriers, barriers)
-    if map.layers['Enemy barriers'] then
-        for i, obj in pairs(map.layers['Enemy barriers'].objects) do
+    if map.layers['EnemyWall'] then
+        for i, obj in pairs(map.layers['EnemyWall'].objects) do
             enemyBarrier = {}
 
             if obj.shape == "rectangle" then
