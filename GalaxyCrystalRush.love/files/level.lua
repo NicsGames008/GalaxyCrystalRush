@@ -244,29 +244,16 @@ end
 
 -- Function to display the "Game Over" screen
 function killedScreen()
-    -- Get the width and height of the screen
-    screenWidth = love.graphics.getWidth()
-    screenHeight = love.graphics.getHeight()
-
-    -- Calculate the middle position for text placement
-    middleX = screenWidth / 2 - 50
-    middleY = screenHeight / 2
-
-    -- Set the text color to white and display "Game Over!" at the calculated position
+    local image = love.graphics.newImage("map/deadScreen.png")
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Game over!", middleX, middleY)
+    love.graphics.draw(image, -100, 0)
+
 end
+
 
 function successScreen()
     -- Get the width and height of the screen
-    screenWidth = love.graphics.getWidth()
-    screenHeight = love.graphics.getHeight()
-
-    -- Calculate the middle position for text placement
-    middleX = screenWidth / 2 - 50
-    middleY = screenHeight / 2
-
-    -- Set the text color to white and display "Game Over!" at the calculated position
+    local image = love.graphics.newImage("map/win.png")
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("You won!", middleX, middleY)
+    love.graphics.draw(image, -100, 0)
 end
