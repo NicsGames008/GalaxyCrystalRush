@@ -1,7 +1,7 @@
 require "files/vector2"
 
 -- Add these variables at the top of your file or in the appropriate scope
-local jumpTimerMax = 0.5  -- Adjust this value based on your jump animation duration
+local jumpTimerMax = 0.2  -- Adjust this value based on your jump animation duration
 local jumpTimer = 0
 
 -- Function to create a player object in the game world
@@ -28,13 +28,14 @@ function createPlayer(world, anim8)
     player.spriteSheet = love.graphics.newImage("sprites/Sprite-0001-Sheet.png")
     player.gird = anim8.newGrid(64, 64, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
     player.animations = {}
-    player.animations.idle = anim8.newAnimation(player.gird('1-7', 1), 0.09)
-    player.animations.walikingRight = anim8.newAnimation(player.gird('1-7', 2), 0.09)
-    player.animations.walikingLeft = anim8.newAnimation(player.gird('1-7', 3), 0.09)
-    player.animations.jumpLeft = anim8.newAnimation(player.gird('1-7', 4), 0.09)
-    player.animations.jumpRight = anim8.newAnimation(player.gird('7-1', 5), 0.09)
+    player.animations.idleRight = anim8.newAnimation(player.gird('1-7', 1), 0.09)
+    player.animations.idleLeft = anim8.newAnimation(player.gird('1-7', 2), 0.09)
+    player.animations.walikingRight = anim8.newAnimation(player.gird('1-7', 3), 0.09)
+    player.animations.walikingLeft = anim8.newAnimation(player.gird('1-7', 4), 0.09)
+    player.animations.jumpRight = anim8.newAnimation(player.gird('1-5', 5), 0.09)
+    player.animations.jumpLeft = anim8.newAnimation(player.gird('5-1', 6), 0.09)
     
-    player.anim = player.animations.idle
+    player.anim = player.animations.idleRight
 
     -- Return the created player object
     return player
@@ -45,12 +46,16 @@ function updatePlayer(dt, sound)
     -- Apply forces based on keyboard input for horizontal movement
     local forceMultiplier = 25 -- Adjust this value to control how quickly the player stops
 
-    if jumpTimer > 0 then
-        print("a")
-        player.anim = player.animations.jumpLeft
-    end
-    
+
     -- Check if the player is on the ground before applying forces
+    -- if jumpTimer > 0 then
+    --     if player.direction < 0 then
+    --         print(jumpTimer)
+    --         player.anim = player.animations.jumpLeft
+    --     elseif player.direction > 0 then
+    --         print(jumpTimer)
+    --         player.anim = player.animations.jumpRight   
+    --     end  
     if love.keyboard.isDown("left") then
         player.body:applyForce(-player.speed, 0)
         player.hasMoved = true
@@ -68,18 +73,44 @@ function updatePlayer(dt, sound)
             sound.walking:play()
         end
     elseif player.onground then
-        player.anim = player.animations.idle
+        --player.anim = player.animations.idle
         local vx, vy = player.body:getLinearVelocity()
         player.body:applyForce(-vx * forceMultiplier, -vy * forceMultiplier)
         player.hasMoved = false
-    elseif jumpTimer > 0 then
-        print("a")
-        player.anim = player.animations.jumpRight
-    else
-        player.anim = player.animations.idle
+    -- elseif jumpTimer > 0 then
+    --     if player.direction > 0 then
+    --         player.anim = player.animations.jumpLeft
+    --     elseif player.direction < 0 then
+    --         player.anim = player.animations.jumpRight            
+    --     end
+    -- else
+    --     player.anim = player.animations.idle
     end
     jumpTimer = math.max(0, jumpTimer - dt)
-    
+
+    if jumpTimer > 0 then
+        if player.direction < 0 then
+            print(jumpTimer)
+            player.anim = player.animations.jumpLeft
+        elseif player.direction > 0 then
+            player.anim = player.animations.jumpRight     
+        end
+    elseif love.keyboard.isDown("left") or love.keyboard.isDown("right") and player.onground then
+        if player.direction < 0 then
+            player.anim = player.animations.walikingLeft
+            sound.walking:play()
+        elseif player.direction > 0 then
+            player.anim = player.animations.walikingRight
+            sound.walking:play()    
+        end
+    else
+        if player.direction < 0 then
+            player.anim = player.animations.idleLeft
+        elseif player.direction > 0 then
+            player.anim = player.animations.idleRight
+        end
+    end
+
     player.anim:update(dt)
 end
 
