@@ -1,4 +1,5 @@
 require "files/light"
+require "files/crystal"
 local anim8 = require("libraries.anim8")
 local sti = require "libraries/sti"
 local Camera = require "libraries/Camera"
@@ -118,7 +119,7 @@ function updateGame(dt, world, player, enemies, crystals, enemyBarriers, camera,
 
 end
 
-function drawGame(killed, success, enemies, finishs, brightLevel,onCrystalPercentage)
+function drawGame(killed, success, crystals, enemies, finishs, brightLevel,onCrystalPercentage)
 
     -- Check if the player is killed
     if killed then
@@ -139,6 +140,8 @@ function drawGame(killed, success, enemies, finishs, brightLevel,onCrystalPercen
 
         -- Draw the level layout
         drawLevel(map)
+
+        drawCrystals(crystals)
 
         -- Draw enemies on the screen
         drawEnemies(enemies)

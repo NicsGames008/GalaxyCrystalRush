@@ -31,7 +31,6 @@ local finishs = {}
 local wallJump = false
 local brightLevel = true
 local lightPlayer
-local cheatF = 1000
 local success = false
 local sound = {}
 local onCrystalPercentage = 1
@@ -67,11 +66,11 @@ function love.draw()
     end
 
     if state == STATE_PAUSE then
-        drawGame(killed, success, enemies, finishs, brightLevel, onCrystalPercentage)
+        drawGame(killed, success, crystals, enemies, finishs, brightLevel, onCrystalPercentage)
         drawPauseMenu()
     end
     if state == STATE_GAMEPLAY then
-        drawGame(killed, success, enemies, finishs, brightLevel, onCrystalPercentage)
+        drawGame(killed, success, crystals,enemies, finishs, brightLevel, onCrystalPercentage)
     end
 end
 
@@ -105,7 +104,7 @@ function love.keypressed(key)
 
     -- If cheats are enabled, apply a cheat jump when the space key is pressed
     if key == "space" and cheat then
-        local jumpForce = vector2.new(0, -cheatF)
+        local jumpForce = vector2.new(0, -player.jumpForce)
         player.onground = false
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
         sound.jump:play()
@@ -225,14 +224,6 @@ function BeginContact(fixtureA, fixtureB, contact)
 
         sound.crystalDing:play()
     end
-
-    -- if fixtureA:getUserData().type == "offCrystal" and fixtureB:getUserData().type == "player" then
-
-    --     local checkpointX = fixtureA:getUserData().body:getX()   
-    --     local checkpointY = fixtureA:getUserData().body:getY()   
-    -- end
-
-
 end
 
 -- functions called when a contact ends
@@ -302,63 +293,3 @@ function reset()
     -- Get initial player position and set up light source
     player.body:setPosition(checkpointX,checkpointY)
 end
-
--- function toCheckpoint()
---     enemies = {}
---     ground = {}
---     killed = false
---     object = "idk"
---     jumpCount = 0
---     released = true
---     cheat = false
---     grounds = {}
---     walls = {}
---     spikes = {}
---     voids = {}
---     wallJump = false
---     brightLevel = true
---     text = "false"
---     lightCrystal = {}
---     barriers ={}
---     crystals = {}
---     enemyBarriers =  {}
---     jumpf = 1500
---     cheatF = 1000
---     walljumpf = 1500
---     boosts = {}
---     boostDuration = 3 
---     boostMaxVelocity = 1000
---     boostTimer = 0
---     isBoostActive = false
---     finishs= {}
---     success = false
---     leftWallJump = false
---     rightWallJump = false
---     onCrystalPercentage = 0
---     world:destroy()
-
-
---     world = love.physics.newWorld(0, 15 * 64, true)
---    world:setCallbacks(BeginContact, EndContact, nil, nil)
-
---    -- Initialize Box2D physics for the map
---    map:box2d_init(world)
-
---     -- Create player and load various game elements
---     player = createPlayer(world, anim8)
---     grounds = loadGround(world, grounds)
---     walls = loadWalls(world, walls)
---     spikes = loadSpikes(world, spikes)
---     voids = loadVoids(world, voids)
---     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
---     crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
---     enemies = loadEnemies(world, enemies, anim8)
---     finishs = createFinish(world, finishs)
-
---    -- Get initial player position and set up light source
---    player.body:setPosition(checkpointX,checkpointY)
---    local playerX, playerY = player.body:getPosition()
---    local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
---    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
-
--- end

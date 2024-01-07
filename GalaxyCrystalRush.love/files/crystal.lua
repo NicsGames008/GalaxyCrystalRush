@@ -1,9 +1,12 @@
+local unLitCrystal = love.graphics.newImage("map/Unlit.png")
+local litCrystal = love.graphics.newImage("map/lit.png")
+
 -- Load crystals into the game world
 function loadCrystals(world, crystals, lightCrystal)
     -- Check if the 'Crystals' layer exists in the map
     if map.layers['Crystals'] then
         -- Iterate over each crystal object in the 'Crystals' layer
-        for i, obj in pairs(map.layers['Crystals'].objects) do
+        for i, obj in pairs(map.layers['PhysicalCrystals'].objects) do
             -- Create a new crystal object
             local crystal = {}
 
@@ -11,12 +14,10 @@ function loadCrystals(world, crystals, lightCrystal)
             if obj.shape == "rectangle" then
                 -- Create a physics body for the crystal at the center of its position
                 crystal.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
-                
-                -- Create a rectangle shape for the crystal
                 crystal.shape = love.physics.newRectangleShape(obj.width, obj.height)
-                
-                -- Create a fixture for the crystal's physics body
                 crystal.fixture = love.physics.newFixture(crystal.body, crystal.shape, 1)
+
+                crystal.isOn = false
                 
                 -- Set the fixture as a sensor to detect collisions without physical responses
                 crystal.fixture:setSensor(true)
@@ -40,24 +41,18 @@ function loadCrystals(world, crystals, lightCrystal)
     end
 end
 
+function drawCrystals(crystals)
+    -- Set the drawing color to white
+    love.graphics.setColor(1, 1, 1, 1)
 
--- function loadCheckpointCrystals(world, checkpoints, lightCrystal)
---     if map.layers['Checkpoint'] then
---         for i, obj in pairs(map.layers['Checkpoint'].objects) do
---             checkpoint = {}
---             if obj.shape == "rectangle" then               
---                 checkpoint.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
---                 checkpoint.shape = love.physics.newRectangleShape(obj.width,obj.height)
---                 checkpoint.fixture = love.physics.newFixture(checkpoint.body, checkpoint.shape, 1)
---                 checkpoint.fixture:setSensor(true)
---                 checkpoint.fixture:setUserData(({object = checkpoint,type = "checkpoint", index = i}))
-
---                 table.insert(checkpoints, checkpoint)
---             end
---             --the lights go to the same position as the crystal
---             local xCrystal, yCrystal = crystal.body:getPosition()
---             lightCrystal[i] = loadLight(100, xCrystal, yCrystal)
---         end
---         return checkpoints, lightCrystal
---     end
--- end
+    -- Iterate over each enemy in the 'crystals' table
+    for _, crystal in ipairs(crystals) do
+        
+        --Check if the crystal is on
+        if crystal.fixture:getUserData().type == "offCrystal" then
+            love.graphics.draw(unLitCrystal, crystal.body:getX(), crystal.body:getY(), nil ,nil ,nil, 120,120)
+        else 
+            love.graphics.draw(litCrystal, crystal.body:getX(), crystal.body:getY(), nil ,nil ,nil, 120,120)
+        end
+    end
+end

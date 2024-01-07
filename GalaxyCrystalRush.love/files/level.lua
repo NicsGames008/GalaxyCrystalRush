@@ -1,5 +1,4 @@
 require "files/vector2"
-
 local ground
 local wall
 local spike
@@ -7,8 +6,8 @@ local void
 local enemyBarrier
 local barrier
 local finish
-local background = love.graphics.newImage("sprites/Untitled-3.png")
-local plantesBg = love.graphics.newImage("sprites/Untitled-2.png")
+local background = love.graphics.newImage("sprites/Background.png")
+local plantesBg = love.graphics.newImage("sprites/Planets.png")
 local deadImage = love.graphics.newImage("map/deadScreen.png")
 local winImage = love.graphics.newImage("map/win.png")
 local backgroundX = 0
@@ -17,7 +16,6 @@ local backgroundSpeed = 20
 -- Draw the layers from tiled
 function drawLevel(map)
     map:drawLayer(map.layers["Map"])
-    map:drawLayer(map.layers["Crystals"])
     map:drawLayer(map.layers["Backvoid"])
     map:drawLayer(map.layers["Void"])
 
@@ -258,13 +256,13 @@ end
 
 -- Function to display the "Game Over" screen
 function killedScreen()
-    deadImage.graphics.setColor(1, 1, 1)
-    deadImage.graphics.draw(deadImage, -100, 0)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.draw(deadImage, -100, 0)
 end
 
 
 function successScreen()
     -- Get the width and height of the screen
-    winImage.graphics.setColor(1, 1, 1)
-    winImage.graphics.draw(winImage, -100, 0)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.draw(winImage, -100, 0)
 end
