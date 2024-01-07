@@ -30,7 +30,7 @@ function drawBackground()
     love.graphics.setColor(0, 0, 0, 0.5)
 
     -- Draw a black rectangle over the image
-    love.graphics.rectangle("fill", backgroundX, 0, plantesBg:getWidth() * 1.3, plantesBg:getHeight() * 1.3)
+    love.graphics.rectangle("fill", 0, 0, plantesBg:getWidth() * 1.3, plantesBg:getHeight() * 1.3)
 
     -- Reset the color to white
     love.graphics.setColor(1, 1, 1, 1)
