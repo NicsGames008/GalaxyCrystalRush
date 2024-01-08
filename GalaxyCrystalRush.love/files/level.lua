@@ -178,25 +178,6 @@ function loadSpikes(world, spikes)
     end
 end
 
--- Load void layer
-function loadVoids(world, voids)
-    if map.layers['Portal'] then
-        for i, obj in pairs(map.layers['Portal'].objects) do
-            void = {}
-            if obj.shape == "rectangle" then
-                void.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
-                void.shape = love.physics.newRectangleShape(obj.width, obj.height)
-                void.fixture = love.physics.newFixture(void.body, void.shape, 1)
-                void.fixture:setUserData(({ object = void, type = "void", index = i }))
-
-                table.insert(voids, void)
-            end
-        end
-
-        return voids
-    end
-end
-
 -- Load barrier layer
 function loadBarriers(world, enemyBarriers, barriers)
     if map.layers['EnemyWall'] then
@@ -219,9 +200,7 @@ function loadBarriers(world, enemyBarriers, barriers)
     if map.layers['Wall jump cancel'] then
         for i, obj in pairs(map.layers['Wall jump cancel'].objects) do
             barrier = {}
-
-
-
+            
             if obj.shape == "rectangle" then
                 barrier.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
                 barrier.shape = love.physics.newRectangleShape(obj.width, obj.height)
@@ -238,7 +217,7 @@ end
 function createFinish(world, finishs)
     finish = {}
 
-    finish.body = love.physics.newBody(world, 37500, -1820, "static")
+    finish.body = love.physics.newBody(world, 19088, -1984, "static")
     finish.shape = love.physics.newRectangleShape(30, 300)
     finish.fixture = love.physics.newFixture(finish.body, finish.shape, 1)
     finish.fixture:setUserData(({ object = finish, type = "finish" }))

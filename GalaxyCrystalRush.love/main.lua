@@ -118,6 +118,7 @@ function love.keypressed(key)
     -- Print the player's position when the 'z' key is pressed
     if key == "z" then
         print(player.body:getPosition())
+        player.body:setPosition(37400, -1700) 
     end
 
     if key == "escape" and  state == STATE_GAMEPLAY then 
@@ -284,7 +285,6 @@ function reset()
     grounds = loadGround(world, grounds)
     walls = loadWalls(world, walls)
     spikes = loadSpikes(world, spikes)
-    voids = loadVoids(world, voids)
     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
     crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
     enemies = loadEnemies(world, enemies, anim8)
