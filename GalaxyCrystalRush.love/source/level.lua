@@ -14,6 +14,7 @@ local backgroundX = 0
 local backgroundSpeed = 20
 local image = love.graphics.newImage("map/flag.png")
 local crystalFramesImage = love.graphics.newImage("sprites/CrystalFrames.png")
+local stopWall
 
 
 
@@ -99,6 +100,20 @@ end
 
 -- Load ground layer
 function loadGround(world, grounds)
+    --first load stop wall for better player intuitions
+    if map.layers['Anti-Fall-Start'] then
+        for i, obj in pairs(map.layers['Anti-Fall-Start'].objects) do
+            stopWall = {}
+
+            if obj.shape == "rectangle" then
+                stopWall.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
+                stopWall.shape = love.physics.newRectangleShape(obj.width, obj.height)
+                stopWall.fixture = love.physics.newFixture(stopWall.body, stopWall.shape, 1)
+                stopWall.fixture:setUserData(({ object = stopWall, type = "stopWall", index = i }))
+            end
+        end
+    end
+    --then load the ground
     if map.layers['Ground'] then
         for i, obj in pairs(map.layers['Ground'].objects) do
             ground = {}
@@ -115,6 +130,9 @@ function loadGround(world, grounds)
         return grounds
     end
 end
+
+   
+
 
 -- Load wall layer
 function loadWalls(world, walls)
