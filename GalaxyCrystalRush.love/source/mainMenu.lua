@@ -41,7 +41,7 @@ end
 function drawMainMenu()
 
     love.graphics.setColor(1,1,1,0.5)
-    love.graphics.draw(backgroundImg, 0,0)
+    love.graphics.draw(backgroundImg, 0, 0)
 
     local ww = love.graphics.getWidth()
     local wh = love.graphics.getHeight()
@@ -79,7 +79,7 @@ function drawMainMenu()
         love.graphics.setColor(1, 1, 1, 1)
         local textw = font:getWidth(button.text)
         local texth = font:getHeight(button.text)
-        love.graphics.print(button.text, font, (ww * 0.5) - textw * 0.5, by + texth * 0.5)
+        love.graphics.print(button.text, font, (ww * 0.5) - textw * 0.5, by + texth * 0.6)
 
         -- Move cursor to the next button position
         cursor_y = cursor_y + (BUTTON_HEIGHT + margin)
@@ -131,7 +131,7 @@ function drawPauseMenu()
         love.graphics.setColor(1, 1, 1, 1)
         local textw = font:getWidth(button.text)
         local texth = font:getHeight(button.text)
-        love.graphics.print(button.text, font, (ww * 0.5) - textw * 0.5, by + texth * 0.5)
+        love.graphics.print(button.text, font, (ww * 0.5) - textw * 0.5, by + texth * 0.6)
 
         -- Move cursor to the next button position
         cursor_y = cursor_y + (BUTTON_HEIGHT + margin)
