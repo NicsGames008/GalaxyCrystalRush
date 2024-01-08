@@ -23,7 +23,7 @@ local music = love.audio.newSource("sounds/sound.mp3", "stream")
 function loadGame()
     --state = STATE_GAMEPLAY
     -- Set up window properties
-    love.window.setMode(1080, 900)
+    love.window.setMode(Width, Height)
     love.window.setFullscreen(true)
     love.graphics.setDefaultFilter("nearest", "nearest")
 
