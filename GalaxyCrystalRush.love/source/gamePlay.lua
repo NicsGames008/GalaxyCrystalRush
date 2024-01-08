@@ -146,7 +146,7 @@ function drawGame(killed, success, crystals, enemies, finishs, brightLevel, onCr
         drawPlayer()
 
         --draw the finsih line
-        --drawFinish(finishs)
+        drawFinish(finishs)
 
         -- If brightLevel is true, draw the lighting effects
         if brightLevel then

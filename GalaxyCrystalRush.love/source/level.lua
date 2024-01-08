@@ -211,7 +211,7 @@ function loadBarriers(world, enemyBarriers, barriers)
     return enemyBarriers, barriers
 end
 
-function createFinish(world, finish)
+function createFinish(world)
     -- Load finish  layer
     if map.layers['Finish'] then
         for i, obj in pairs(map.layers['Finish'].objects) do
@@ -229,8 +229,9 @@ function createFinish(world, finish)
 end
 
 function drawFinish(finish)
-    love.graphics.setColor(1, 0, 0)
-    love.graphics.polygon("fill", finish.body:getWorldPoints(finish.shape:getPoints()))
+    local image = love.graphics.newImage("map/flag.png")
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(image, finish.body:getX() - 110, finish.body:getY() - 130, 0, 0.25,0.25)
 end
 
 -- Function to display the "Game Over" screen

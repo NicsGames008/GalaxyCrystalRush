@@ -44,6 +44,8 @@ function love.load()
     state = STATE_MAIN_MENU
     loadMainMenu()
     sound, world, lightPlayer, lightCrystal, player, crystals = loadGame()
+    finishs = createFinish(world)
+
 end
 
 -- update
@@ -284,7 +286,7 @@ function reset()
     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
     crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
     enemies = loadEnemies(world, enemies, anim8)
-    finishs = createFinish(world, finishs)
+    finishs = createFinish(world)
 
     -- Get initial player position and set up light source
     player.body:setPosition(checkpointX, checkpointY)
