@@ -16,15 +16,16 @@ function createPlayer(world, anim8)
     player.body:setFixedRotation(true)
     player.fixture:setUserData(({ object = player, type = "player", index = i }))
 
-    player.speed = 2000
-    player.jumpForce = 1500
-    player.walljumpf = 1500
+    player.speed = 2300
+    player.jumpForce = 1800
+    player.walljumpf = 1800
     player.hasMoved = false
     player.direction = 0
     player.checkpointX = 0
     player.checkpointY = 0
     player.onground = false
-
+    player.body:setLinearDamping(1)
+    
     player.spriteSheet = love.graphics.newImage("sprites/Sprite-0001-Sheet.png")
     player.gird = anim8.newGrid(64, 64, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
     player.animations = {}
@@ -59,7 +60,7 @@ function updatePlayer(dt, sound)
         -- Apply force in the opposite direction if on the ground and not moving
     elseif player.onground then
         local vx, vy = player.body:getLinearVelocity()
-        player.body:applyForce(-vx * forceMultiplier, -vy * forceMultiplier)
+        player.body:applyForce(-vx * forceMultiplier, 0)
         player.hasMoved = false
     end
 
