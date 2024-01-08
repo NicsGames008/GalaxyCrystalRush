@@ -1,5 +1,5 @@
-require "files/light"
-require "files/crystal"
+require "source/light"
+require "source/crystal"
 local anim8 = require("libraries.anim8")
 local sti = require "libraries/sti"
 local Camera = require "libraries/Camera"
@@ -21,57 +21,57 @@ local Height = love.graphics:getHeight()
 
 function loadGame()
     --state = STATE_GAMEPLAY
-   -- Set up window properties
-   love.window.setMode(1080, 900)
-   love.window.setFullscreen(true)
-   love.graphics.setDefaultFilter("nearest", "nearest")
+    -- Set up window properties
+    love.window.setMode(1080, 900)
+    love.window.setFullscreen(true)
+    love.graphics.setDefaultFilter("nearest", "nearest")
 
-   -- Initialize camera with default parameters
-   camera = Camera(0, 0, 0, 0, 0.5)
+    -- Initialize camera with default parameters
+    camera = Camera(0, 0, 0, 0, 0.5)
 
-   -- Load map using Simple Tiled Implementation (STI) library with Box2D physics
-   map = sti("map/map.lua", { "box2d" })
+    -- Load map using Simple Tiled Implementation (STI) library with Box2D physics
+    map = sti("map/map.lua", { "box2d" })
 
-   -- Set up physics world using Box2D
-   love.physics.setMeter(64)
-   world = love.physics.newWorld(0, 20 * love.physics.getMeter(), true)
-   world:setCallbacks(BeginContact, EndContact, nil, nil)
+    -- Set up physics world using Box2D
+    love.physics.setMeter(64)
+    world = love.physics.newWorld(0, 20 * love.physics.getMeter(), true)
+    world:setCallbacks(BeginContact, EndContact, nil, nil)
 
-   -- Initialize Box2D physics for the map
-   map:box2d_init(world)
+    -- Initialize Box2D physics for the map
+    map:box2d_init(world)
 
-   -- Add a custom layer for sprites to the map
-   map:addCustomLayer("Sprite Layer", 3)
+    -- Add a custom layer for sprites to the map
+    map:addCustomLayer("Sprite Layer", 3)
 
-   sound.jump = love.audio.newSource("sounds/JumpSound_01.mp3", "static")
-   sound.walking = love.audio.newSource("sounds/waklingSound_01.mp3", "static")
-   sound.crystalDing = love.audio.newSource("sounds/crystalDing_01.mp3", "static")
+    sound.jump = love.audio.newSource("sounds/JumpSound_01.mp3", "static")
+    sound.walking = love.audio.newSource("sounds/waklingSound_01.mp3", "static")
+    sound.crystalDing = love.audio.newSource("sounds/crystalDing_01.mp3", "static")
 
-   -- Create player and load various game elements
-   player = createPlayer(world, anim8)
-   grounds = loadGround(world, grounds)
-   walls = loadWalls(world, walls)
-   spikes = loadSpikes(world, spikes)
-   enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
-   crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
-   enemies = loadEnemies(world, enemies, anim8)
-   finishs = createFinish(world, finishs)
+    -- Create player and load various game elements
+    player = createPlayer(world, anim8)
+    grounds = loadGround(world, grounds)
+    walls = loadWalls(world, walls)
+    spikes = loadSpikes(world, spikes)
+    enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
+    crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
+    enemies = loadEnemies(world, enemies, anim8)
+    finishs = createFinish(world, finishs)
 
-   -- Get initial player position and set up light source
-   local playerX, playerY = player.body:getPosition()
-   local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
-   lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
-   music = love.audio.newSource("sounds/sound.mp3", "stream")
+    -- Get initial player position and set up light source
+    local playerX, playerY = player.body:getPosition()
+    local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
+    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
+    music = love.audio.newSource("sounds/sound.mp3", "stream")
 
 
     -- Play the music in a loop
     music:setLooping(true)
     love.audio.play(music)
 
-   return sound, world, lightPlayer, lightCrystal, player, crystals
+    return sound, world, lightPlayer, lightCrystal, player, crystals
 end
 
-function updateGame(dt, world, player, enemies, crystals, enemyBarriers, camera, lightPlayer, lightCrystal,brightLevel)
+function updateGame(dt, world, player, enemies, crystals, enemyBarriers, camera, lightPlayer, lightCrystal, brightLevel)
     -- Update physics world and camera
     world:update(dt)
     camera:update(dt)
@@ -88,7 +88,7 @@ function updateGame(dt, world, player, enemies, crystals, enemyBarriers, camera,
 
     updateBackground(dt, player)
 
-    if brightLevel then    
+    if brightLevel then
         -- Update the light position for the player
         local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
         updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
@@ -98,7 +98,7 @@ function updateGame(dt, world, player, enemies, crystals, enemyBarriers, camera,
             local xCrystal, yCrystal = crystals[i].body:getPosition()
             local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
             updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
-            
+
             -- Check if the crystal is of type "onCrystal" and update enemies accordingly
             if crystals[i].fixture:getUserData().type == "onCrystal" then
                 checkEnemyDistanceToCrystal(xCrystal, yCrystal, enemies)
@@ -115,19 +115,16 @@ function updateGame(dt, world, player, enemies, crystals, enemyBarriers, camera,
     end
 
     updateLightWorld()
-
 end
 
-function drawGame(killed, success, crystals, enemies, finishs, brightLevel,onCrystalPercentage)
-
+function drawGame(killed, success, crystals, enemies, finishs, brightLevel, onCrystalPercentage)
     -- Check if the player is killed
     if killed then
-
         -- Display the killed screen
-        killedScreen()
-    elseif success then 
+        drawKilledScreen()
+    elseif success then
         -- Display the win  screen
-        successScreen(onCrystalPercentage)
+        drawSuccessScreen(onCrystalPercentage)
     else
         drawBackground()
 
@@ -149,7 +146,7 @@ function drawGame(killed, success, crystals, enemies, finishs, brightLevel,onCry
         drawPlayer()
 
         --draw the finsih line
-        drawFinish(finishs)
+        --drawFinish(finishs)
 
         -- If brightLevel is true, draw the lighting effects
         if brightLevel then
@@ -161,7 +158,7 @@ function drawGame(killed, success, crystals, enemies, finishs, brightLevel,onCry
 
         -- Draw the camera view
         camera:draw()
-        
+
         --call the funciton that draws the UI
         drawUI(onCrystalPercentage)
     end
@@ -174,7 +171,7 @@ function updatePause(dt, player, lightPlayer, camera, crystals, lightCrystal)
 
     -- Convert player's position to camera coordinates
     local xLightPlayer, yLightPlayer = camera:toCameraCoords(pX, pY)
-    
+
     -- Update the player's light source based on the camera coordinates
     updateLight(dt, xLightPlayer, yLightPlayer, lightPlayer)
 
@@ -182,15 +179,14 @@ function updatePause(dt, player, lightPlayer, camera, crystals, lightCrystal)
     for i = 1, #crystals, 1 do
         -- Get the position of the current crystal
         local xCrystal, yCrystal = crystals[i].body:getPosition()
-        
+
         -- Convert crystal's position to camera coordinates
         local xLightCrystal, yLightCrystal = camera:toCameraCoords(xCrystal, yCrystal)
-        
+
         -- Update the light source for the current crystal based on camera coordinates
         updateLight(dt, xLightCrystal, yLightCrystal, lightCrystal[i])
     end
-    
+
     -- Update the global light source in the game world
     updateLightWorld()
 end
-

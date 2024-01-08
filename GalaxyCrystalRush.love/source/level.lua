@@ -1,4 +1,4 @@
-require "files/vector2"
+require "source/vector2"
 local ground
 local wall
 local spike
@@ -18,11 +18,9 @@ function drawLevel(map)
     map:drawLayer(map.layers["Void"])
     map:drawLayer(map.layers["Backvoid"])
     map:drawLayer(map.layers["Map"])
-
 end
 
 function drawBackground()
-
     love.graphics.draw(background, 0, 0, nil, 1.3, 1.3)
 
     -- Draw background
@@ -34,7 +32,6 @@ function drawBackground()
 
     -- Reset the color to white
     love.graphics.setColor(1, 1, 1, 1)
-
 end
 
 function updateBackground(dt, player)
@@ -200,7 +197,7 @@ function loadBarriers(world, enemyBarriers, barriers)
     if map.layers['Wall jump cancel'] then
         for i, obj in pairs(map.layers['Wall jump cancel'].objects) do
             barrier = {}
-            
+
             if obj.shape == "rectangle" then
                 barrier.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
                 barrier.shape = love.physics.newRectangleShape(obj.width, obj.height)
@@ -215,18 +212,16 @@ function loadBarriers(world, enemyBarriers, barriers)
 end
 
 function createFinish(world, finish)
-
     -- Load finish  layer
     if map.layers['Finish'] then
         for i, obj in pairs(map.layers['Finish'].objects) do
             finish = {}
-            
+
             if obj.shape == "rectangle" then
                 finish.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
                 finish.shape = love.physics.newRectangleShape(obj.width, obj.height)
                 finish.fixture = love.physics.newFixture(finish.body, finish.shape, 1)
                 finish.fixture:setUserData(({ object = finish, type = "finish", index = i }))
-
             end
         end
     end
@@ -235,17 +230,16 @@ end
 
 function drawFinish(finish)
     love.graphics.setColor(1, 0, 0)
-        love.graphics.polygon("fill", finish.body:getWorldPoints(finish.shape:getPoints()))
+    love.graphics.polygon("fill", finish.body:getWorldPoints(finish.shape:getPoints()))
 end
 
 -- Function to display the "Game Over" screen
-function killedScreen()
+function drawKilledScreen()
     love.graphics.setColor(1, 1, 1)
     love.graphics.draw(deadImage, -100, 0)
 end
 
-
-function successScreen(onCrystalPercentage)
+function drawSuccessScreen(onCrystalPercentage)
     -- Get the width and height of the screen
     love.graphics.setColor(1, 1, 1)
     love.graphics.draw(winImage, -100, 0)
@@ -260,5 +254,5 @@ function successScreen(onCrystalPercentage)
 
     -- Set the text color to white and display "Game Over!" at the calculated position
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("You got "..onCrystalPercentage.. "% of the Crystals", middleX , middleY , nil, 2, 2,  75, -75)
+    love.graphics.print("You got " .. onCrystalPercentage .. "% of the Crystals", middleX, middleY, nil, 2, 2, 75, -75)
 end

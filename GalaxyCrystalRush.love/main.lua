@@ -1,11 +1,11 @@
 local anim8 = require("libraries.anim8")
-require "files/enemy"
-require "files/player"
-require "files/level"
-require "files/light"
-require "files/crystal"
-require "files/mainMenu"
-require "files/gamePlay"
+require "source/enemy"
+require "source/player"
+require "source/level"
+require "source/light"
+require "source/crystal"
+require "source/mainMenu"
+require "source/gamePlay"
 
 local STATE_MAIN_MENU = 0
 local STATE_GAMEPLAY = 1
@@ -39,7 +39,7 @@ local leftWallJump = false
 local rightWallJump = false
 local checkpointX, checkpointY
 
--- load 
+-- load
 function love.load()
     state = STATE_MAIN_MENU
     loadMainMenu()
@@ -51,8 +51,8 @@ end
 function love.update(dt)
     state = updateState(state)
 
-    if state == STATE_GAMEPLAY then 
-        updateGame(dt, world, player, enemies, crystals, enemyBarriers, camera, lightPlayer, lightCrystal,brightLevel)
+    if state == STATE_GAMEPLAY then
+        updateGame(dt, world, player, enemies, crystals, enemyBarriers, camera, lightPlayer, lightCrystal, brightLevel)
     elseif state == STATE_PAUSE then
         updatePause(dt, player, lightPlayer, camera, crystals, lightCrystal)
     end
@@ -70,7 +70,7 @@ function love.draw()
         drawPauseMenu()
     end
     if state == STATE_GAMEPLAY then
-        drawGame(killed, success, crystals,enemies, finishs, brightLevel, onCrystalPercentage)
+        drawGame(killed, success, crystals, enemies, finishs, brightLevel, onCrystalPercentage)
     end
 end
 
@@ -120,18 +120,16 @@ function love.keypressed(key)
         print(player.body:getPosition())
     end
 
-    if key == "escape" and  state == STATE_GAMEPLAY then 
+    if key == "escape" and state == STATE_GAMEPLAY then
         state = STATE_PAUSE
         text = tostring(state)
-
-    end 
-    if key == "r" then 
-        reset()
-
     end
-    if key == "p" then 
+    if key == "r" then
+        reset()
+    end
+    if key == "p" then
         toCheckpoint()
-    end 
+    end
     ------------------------------------------------------------------------------------------------------------------------
 end
 
@@ -245,7 +243,7 @@ function math.sign(x)
 end
 
 function reset()
-    for i, light in pairs(lightCrystal)do    
+    for i, light in pairs(lightCrystal) do
         light:Remove()
     end
     --resets all the variables
@@ -260,16 +258,16 @@ function reset()
     voids = {}
     brightLevel = true
     lightCrystal = {}
-    barriers ={}
+    barriers = {}
     crystals = {}
-    enemyBarriers =  {}
+    enemyBarriers = {}
     cheatF = 1000
-    finishs= {}
+    finishs = {}
     success = false
     checkpointX = -100
     checkpointY = -500
     onCrystalPercentage = 0
-    onCrystalCount = 0 
+    onCrystalCount = 0
     world:destroy()
 
     world = love.physics.newWorld(0, 15 * 64, true)
@@ -289,5 +287,5 @@ function reset()
     finishs = createFinish(world, finishs)
 
     -- Get initial player position and set up light source
-    player.body:setPosition(checkpointX,checkpointY)
+    player.body:setPosition(checkpointX, checkpointY)
 end
