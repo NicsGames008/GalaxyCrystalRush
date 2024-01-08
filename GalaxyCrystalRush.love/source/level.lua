@@ -12,6 +12,8 @@ local deadImage = love.graphics.newImage("map/deadScreen.png")
 local winImage = love.graphics.newImage("map/win.png")
 local backgroundX = 0
 local backgroundSpeed = 20
+local image = love.graphics.newImage("map/flag.png")
+
 
 -- Draw the layers from tiled
 function drawLevel(map)
@@ -229,7 +231,6 @@ function createFinish(world)
 end
 
 function drawFinish(finish)
-    local image = love.graphics.newImage("map/flag.png")
         love.graphics.setColor(1, 1, 1)
         love.graphics.draw(image, finish.body:getX() - 110, finish.body:getY() - 130, 0, 0.25,0.25)
 end
