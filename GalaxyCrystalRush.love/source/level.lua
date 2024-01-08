@@ -13,6 +13,8 @@ local winImage = love.graphics.newImage("map/win.png")
 local backgroundX = 0
 local backgroundSpeed = 20
 local image = love.graphics.newImage("map/flag.png")
+local crystalFramesImage = love.graphics.newImage("sprites/CrystalFrames.png")
+
 
 
 -- Draw the layers from tiled
@@ -45,7 +47,6 @@ end
 
 function drawUI(onCrystalPercentage)
     -- Load the crystal frames image
-    local crystalFramesImage = love.graphics.newImage("sprites/CrystalFrames.png")
 
     -- Create an array (table) to store quads for crystal frames
     local crystalQuads = {}
