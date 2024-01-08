@@ -56,12 +56,12 @@ function loadGame()
     enemyBarriers, barriers = loadBarriers(world, enemyBarriers, barriers)
     crystals, lightCrystal = loadCrystals(world, crystals, lightCrystal)
     enemies = loadEnemies(world, enemies, anim8)
-    finishs = createFinish(world, finishs)
+    finishs = createFinish(world)
 
     -- Get initial player position and set up light source
     local playerX, playerY = player.body:getPosition()
     local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
-    lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
+    lightPlayer = loadLight(550, xLightPlayer, yLightPlayer)
 
 
     -- Play the music in a loop
