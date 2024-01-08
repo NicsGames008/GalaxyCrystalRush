@@ -17,6 +17,7 @@ local enemies = {}
 local finishs = {}
 local Width = love.graphics:getWidth()
 local Height = love.graphics:getHeight()
+local music = love.audio.newSource("sounds/sound.mp3", "stream")
 
 
 function loadGame()
@@ -61,7 +62,6 @@ function loadGame()
     local playerX, playerY = player.body:getPosition()
     local xLightPlayer, yLightPlayer = camera:toCameraCoords(playerX, playerY)
     lightPlayer = loadLight(400, xLightPlayer, yLightPlayer)
-    music = love.audio.newSource("sounds/sound.mp3", "stream")
 
 
     -- Play the music in a loop

@@ -40,7 +40,7 @@ end
 -- Function to draw the main menu
 function drawMainMenu()
 
-    love.graphics.setColor(1,1,1,0.5)
+    --love.graphics.setColor(1,1,1,0.5)
     love.graphics.draw(backgroundImg, 0, 0)
 
     local ww = love.graphics.getWidth()
