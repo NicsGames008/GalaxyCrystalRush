@@ -44,6 +44,7 @@ function loadGame()
     -- Add a custom layer for sprites to the map
     map:addCustomLayer("Sprite Layer", 3)
 
+    -- play sounds
     sound.jump = love.audio.newSource("sounds/JumpSound_01.mp3", "static")
     sound.walking = love.audio.newSource("sounds/waklingSound_01.mp3", "static")
     sound.crystalDing = love.audio.newSource("sounds/crystalDing_01.mp3", "static")
