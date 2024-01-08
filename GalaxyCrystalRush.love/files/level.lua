@@ -15,9 +15,9 @@ local backgroundSpeed = 20
 
 -- Draw the layers from tiled
 function drawLevel(map)
-    map:drawLayer(map.layers["Map"])
-    map:drawLayer(map.layers["Backvoid"])
     map:drawLayer(map.layers["Void"])
+    map:drawLayer(map.layers["Backvoid"])
+    map:drawLayer(map.layers["Map"])
 
 end
 
