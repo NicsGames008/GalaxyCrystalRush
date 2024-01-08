@@ -122,12 +122,12 @@ function drawGame(killed, success, crystals, enemies, finishs, brightLevel,onCry
 
     -- Check if the player is killed
     if killed then
-        if success then 
-            successScreen()
-        else
+
         -- Display the killed screen
         killedScreen()
-        end
+    elseif success then 
+        -- Display the win  screen
+        successScreen(onCrystalPercentage)
     else
         drawBackground()
 

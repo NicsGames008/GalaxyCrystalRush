@@ -4,9 +4,9 @@ local litCrystal = love.graphics.newImage("map/lit.png")
 -- Load crystals into the game world
 function loadCrystals(world, crystals, lightCrystal)
     -- Check if the 'Crystals' layer exists in the map
-    if map.layers['PhysicalCrystals'] then
+    if map.layers['Crystals'] then
         -- Iterate over each crystal object in the 'Crystals' layer
-        for i, obj in pairs(map.layers['PhysicalCrystals'].objects) do
+        for i, obj in pairs(map.layers['Crystals'].objects) do
             -- Create a new crystal object
             local crystal = {}
 

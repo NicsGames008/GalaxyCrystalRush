@@ -214,23 +214,28 @@ function loadBarriers(world, enemyBarriers, barriers)
     return enemyBarriers, barriers
 end
 
-function createFinish(world, finishs)
-    finish = {}
+function createFinish(world, finish)
 
-    finish.body = love.physics.newBody(world, 19088, -1984, "static")
-    finish.shape = love.physics.newRectangleShape(30, 300)
-    finish.fixture = love.physics.newFixture(finish.body, finish.shape, 1)
-    finish.fixture:setUserData(({ object = finish, type = "finish" }))
-    table.insert(finishs, finish)
+    -- Load finish  layer
+    if map.layers['Finish'] then
+        for i, obj in pairs(map.layers['Finish'].objects) do
+            finish = {}
+            
+            if obj.shape == "rectangle" then
+                finish.body = love.physics.newBody(world, obj.x + obj.width / 2, obj.y + obj.height / 2, "static")
+                finish.shape = love.physics.newRectangleShape(obj.width, obj.height)
+                finish.fixture = love.physics.newFixture(finish.body, finish.shape, 1)
+                finish.fixture:setUserData(({ object = finish, type = "finish", index = i }))
 
-    return finishs
+            end
+        end
+    end
+    return finish
 end
 
-function drawFinish(finishs)
+function drawFinish(finish)
     love.graphics.setColor(1, 0, 0)
-    for _, finish in ipairs(finishs) do
         love.graphics.polygon("fill", finish.body:getWorldPoints(finish.shape:getPoints()))
-    end
 end
 
 -- Function to display the "Game Over" screen
@@ -240,8 +245,20 @@ function killedScreen()
 end
 
 
-function successScreen()
+function successScreen(onCrystalPercentage)
     -- Get the width and height of the screen
     love.graphics.setColor(1, 1, 1)
     love.graphics.draw(winImage, -100, 0)
+
+    -- Get the width and height of the screen
+    screenWidth = love.graphics.getWidth()
+    screenHeight = love.graphics.getHeight()
+
+    -- Calculate the middle position for text placement
+    middleX = screenWidth / 2 - 50
+    middleY = screenHeight / 2
+
+    -- Set the text color to white and display "Game Over!" at the calculated position
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("You got "..onCrystalPercentage.. "% of the Crystals", middleX , middleY , nil, 2, 2,  75, -75)
 end

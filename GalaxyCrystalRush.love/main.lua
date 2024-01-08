@@ -118,7 +118,6 @@ function love.keypressed(key)
     -- Print the player's position when the 'z' key is pressed
     if key == "z" then
         print(player.body:getPosition())
-        player.body:setPosition(37400, -1700) 
     end
 
     if key == "escape" and  state == STATE_GAMEPLAY then 
@@ -166,7 +165,6 @@ function BeginContact(fixtureA, fixtureB, contact)
         end
     end
     if fixtureA:getUserData().type == "finish" and fixtureB:getUserData().type == "player" then
-        killed = true
         success = true
     end
 
