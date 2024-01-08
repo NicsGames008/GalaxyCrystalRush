@@ -21,7 +21,7 @@ function drawLevel(map)
 end
 
 function drawBackground()
-    love.graphics.draw(background, 0, 0, nil, 1.3, 1.3)
+    love.graphics.draw(background, 0, 0, nil, 1.5, 1.5)
 
     -- Draw background
     love.graphics.draw(plantesBg, backgroundX, 0, nil, 1.3, 1.3)
