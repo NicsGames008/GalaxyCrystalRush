@@ -1,4 +1,5 @@
 require "/source/button"
+local backgroundImg = love.graphics.newImage("sprites/bg_plain.png")
 
 local BUTTON_HEIGHT = 64
 
@@ -38,6 +39,10 @@ end
 
 -- Function to draw the main menu
 function drawMainMenu()
+
+    love.graphics.setColor(1,1,1,0.5)
+    love.graphics.draw(backgroundImg, 0,0)
+
     local ww = love.graphics.getWidth()
     local wh = love.graphics.getHeight()
     local button_width = ww * (1 / 7)
